@@ -1,4 +1,18 @@
-from methods import backbone
+#!/usr/bin/env python
+# -*- encoding: utf-8 -*-
+'''
+@File    :   re_baselinetrain.py    
+@Contact :   lightningtyb@163.com
+@License :   (C)Copyright 2019-2020
+
+@Modify Time      @Author    @Version    @Desciption
+------------      -------    --------    -----------
+2020-04-16 15:47   tangyubao      1.0         None
+'''
+
+# import lib
+ 
+from methods import re_backbone, backbone
 import torch
 import torch.nn as nn
 from tensorboardX import SummaryWriter
@@ -16,7 +30,7 @@ class BaselineTrain(nn.Module):
       self.classifier = nn.Linear(self.feature.final_feat_dim, num_class)
       self.classifier.bias.data.fill_(0)
     elif loss_type == 'dist':
-      self.classifier = backbone.distLinear(self.feature.final_feat_dim, num_class)
+      self.classifier = re_backbone.distLinear(self.feature.final_feat_dim, num_class)
     self.loss_type = loss_type
     self.loss_fn = nn.CrossEntropyLoss()
 
@@ -27,8 +41,8 @@ class BaselineTrain(nn.Module):
   def forward(self,x):
     if torch.cuda.is_available():
       x = x.cuda() # x[16,3,224,224]
-    out  = self.feature.forward(x) # [16,512] resnet
-    scores  = self.classifier.forward(out) # [16,200] distLinear
+    out  = self.feature.forward(x) # [16,512] resnet  RE out[batch,hidden] [4,230]
+    scores  = self.classifier.forward(out) # [16,200] distLinear RE scores[batch,num_classes] [4,8]
     return scores
 
   def forward_loss(self, x, y):
@@ -43,7 +57,7 @@ class BaselineTrain(nn.Module):
 
     for i, (x,y) in enumerate(train_loader):# x[16,3,224,224] [batch,channel,h,w], y[16]
       if i<3 :
-        optimizer.zero_grad()
+        optimizer.zero_grad() # x[batch,512],y[4]
         loss = self.forward_loss(x, y) #resnet
         loss.backward()
         optimizer.step()
@@ -59,4 +73,5 @@ class BaselineTrain(nn.Module):
 
   def test_loop(self, val_loader):
     return -1 #no validation, just save model during iteration
+
 

@@ -1,3 +1,18 @@
+#!/usr/bin/env python
+# -*- encoding: utf-8 -*-
+'''
+@File    :   re_backbone.py    
+@Contact :   lightningtyb@163.com
+@License :   (C)Copyright 2019-2020
+
+@Modify Time      @Author    @Version    @Desciption
+------------      -------    --------    -----------
+2020-04-16 13:44   tangyubao      1.0         None
+'''
+
+# import lib
+ 
+
 # This code is modified from https://github.com/facebookresearch/low-shot-shrink-hallucinate
 
 import torch
@@ -5,7 +20,9 @@ import torch.nn as nn
 import math
 import torch.nn.functional as F
 from torch.nn.utils import weight_norm
-
+from toolkit import encoder
+import numpy as np
+import json
 # --- gaussian initialize ---
 def init_layer(L):
   # Initialization using fan-in
@@ -439,6 +456,26 @@ class ResNet(nn.Module):
     out = self.trunk(x)
     return out
 
+class CNNSentenceEncoder(nn.Module):
+
+    def __init__(self, word_vec_mat, max_length, word_embedding_dim=50,
+                 pos_embedding_dim=5, hidden_size=230):
+        nn.Module.__init__(self)
+        self.hidden_size = hidden_size
+        self.max_length = max_length
+        self.embedding = encoder.embedding.Embedding(word_vec_mat, max_length,
+                                                             word_embedding_dim, pos_embedding_dim)
+        self.encoder = encoder.encoder.Encoder(max_length, word_embedding_dim,
+                                                       pos_embedding_dim, hidden_size)
+        # self.word2id = word2id
+        self.final_feat_dim = 230
+
+    def forward(self, inputs):
+        x = self.embedding(inputs) # x [4,128,60]
+        x = self.encoder(x) # x[batch,230]
+        return x
+
+
 # --- Conv networks ---
 def Conv4():
     return ConvNet(4)
@@ -457,8 +494,19 @@ def ResNet18(flatten=True, leakyrelu=False):
 def ResNet34(flatten=True, leakyrelu=False):
     return ResNet(SimpleBlock, [3,4,6,3],[64,128,256,512], flatten, leakyrelu)
 
+def One_D_CNN():
+    try:
+        glove_mat = np.load('./glove/glove_mat.npy')
+        # glove_word2id = json.load(open('./pretrain/glove/glove_word2id.json'))
+    except:
+        raise Exception("Cannot find glove files. Run glove/download_glove.sh to download glove files.")
+
+    return CNNSentenceEncoder(glove_mat, max_length = 128, word_embedding_dim=50,
+                 pos_embedding_dim=5, hidden_size=230)
+
 model_dict = dict(Conv4 = Conv4,
                   Conv6 = Conv6,
                   ResNet10 = ResNet10,
                   ResNet18 = ResNet18,
-                  ResNet34 = ResNet34)
+                  ResNet34 = ResNet34,
+                  cnn = One_D_CNN)
