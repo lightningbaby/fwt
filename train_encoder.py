@@ -89,8 +89,9 @@ if __name__=='__main__':
     # datasets = ['miniImagenet', 'cars', 'places', 'cub', 'plantae']
     datasets = ['fwt_sub_test_wiki', 'fwt_sub_val_nyt', 'fwt_sub_val_wiki']
     datasets.remove(params.testset)
-    base_file = [os.path.join(params.data_dir, params.train, '.json') for dataset in datasets]
-    val_file  = os.path.join(params.data_dir, params.val,'.json')
+    ### 需要修改文件名
+    base_file = [os.path.join(params.data_dir, (params.train + '.json')) for dataset in datasets] # 多个域的训练集训练
+    val_file  = os.path.join(params.data_dir, (params.val + '.json')) #train_wiki 验证
   else:
     print('  train with single seen domain {}'.format(params.dataset))
     base_file  = os.path.join(params.data_dir,  (params.dataset + '.json'))

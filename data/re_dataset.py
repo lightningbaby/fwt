@@ -144,9 +144,7 @@ class SetDataset:
     for cl in self.cl_list:
       self.sub_meta[cl] = []
 
-    # for x,y in zip({'h':self.meta['h'],'tokens':self.meta['tokens'],
-    #                 't':self.meta['t']},self.meta['label']):
-    #   self.sub_meta[y].append(x)
+
     for i in range(len(self.meta)):
         self.sub_meta[self.classes_dict[self.meta[i]['label']]].append(self.meta[i])
 
@@ -170,29 +168,36 @@ class SetDataset:
 
 
 class MultiSetDataset:
-  def __init__(self, data_files, batch_size, transform):
+  def __init__(self, data_files, batch_size, max_length):
+    self.max_length=max_length
     self.cl_list = np.array([])
     self.sub_dataloader = []
     self.n_classes = []
     for data_file in data_files:
       with open(data_file, 'r') as f:
-        meta = json.load(f)
-      cl_list = np.unique(meta['image_labels']).tolist()
-      self.cl_list = np.concatenate((self.cl_list, cl_list))
+        data = json.load(f)
+      meta=data[1]
+      cl_list=data[0]
+      # self.cl_list = np.concatenate((self.cl_list, cl_list))
+
+      classes_dict = {}
+
+      for i in range(len(cl_list)):
+          classes_dict[cl_list[i]] = i
 
       sub_meta = {}
       for cl in cl_list:
-        sub_meta[cl] = []
+        sub_meta[classes_dict[cl]] = []
 
-      for x,y in zip(meta['image_names'], meta['image_labels']):
-        sub_meta[y].append(x)
+      for i in range(len(meta)):
+          sub_meta[classes_dict[meta[i]['label']]].append(meta[i])
 
       sub_data_loader_params = dict(batch_size = batch_size,
           shuffle = True,
           num_workers = 0, #use main thread only or may receive multiple batches
           pin_memory = False)
       for cl in cl_list:
-        sub_dataset = SubDataset(sub_meta[cl], cl, transform = transform, min_size=batch_size)
+        sub_dataset = SubDataset(sub_meta[classes_dict[cl]], cl, self.max_length)
         self.sub_dataloader.append( torch.utils.data.DataLoader(sub_dataset, **sub_data_loader_params) )
       self.n_classes.append(len(cl_list))
 

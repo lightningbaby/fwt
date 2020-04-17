@@ -88,7 +88,7 @@ class SetREDataManager(DataManager):
   def get_data_loader(self, data_file,tmp): #parameters that would change on train/val set
 
     if isinstance(data_file, list):
-      dataset = MultiSetDataset( data_file , self.batch_size )
+      dataset = MultiSetDataset( data_file , self.batch_size, self.max_length)
       sampler = MultiEpisodicBatchSampler(dataset.lens(), self.n_way, self.n_eposide )
     else:
       dataset = SetDataset( data_file , self.batch_size, self.max_length)

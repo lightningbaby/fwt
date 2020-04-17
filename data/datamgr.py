@@ -73,8 +73,8 @@ class SetDataManager(DataManager):
   def get_data_loader(self, data_file, aug): #parameters that would change on train/val set
     transform = self.trans_loader.get_composed_transform(aug)
     if isinstance(data_file, list):
-      dataset = MultiSetDataset( data_file , self.batch_size, transform )
-      sampler = MultiEpisodicBatchSampler(dataset.lens(), self.n_way, self.n_eposide )
+      dataset = MultiSetDataset( data_file , self.batch_size, transform )# 包含多个(各个数据集关系数目之和)sub_dataloader,里面每个类别是一个Dataloader
+      sampler = MultiEpisodicBatchSampler(dataset.lens(), self.n_way, self.n_eposide )# dataset.lens()是个list 每个数据集的关系类别数目
     else:
       dataset = SetDataset( data_file , self.batch_size, transform )
       # dataset 里面有1）标签列表cl_list 0～N-1, 2）源数据meta 3）sub_dataloader 里面是 每个类 对应的dataloader
