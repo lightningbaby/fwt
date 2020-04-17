@@ -470,8 +470,8 @@ class CNNSentenceEncoder(nn.Module):
         # self.word2id = word2id
         self.final_feat_dim = 230
 
-    def forward(self, inputs):
-        x = self.embedding(inputs) # x [4,128,60]
+    def forward(self, inputs): # inputs[batch_size,512]，一个样本有 word,pos1,pos2,mask,每一个是128维，4个拼成一行 所以是512维
+        x = self.embedding(inputs) # x [4,128,60] [batch，128维，50+5+5（word 50维，每个pos5维）]
         x = self.encoder(x) # x[batch,230]
         return x
 
