@@ -494,7 +494,7 @@ def ResNet18(flatten=True, leakyrelu=False):
 def ResNet34(flatten=True, leakyrelu=False):
     return ResNet(SimpleBlock, [3,4,6,3],[64,128,256,512], flatten, leakyrelu)
 
-def One_D_CNN():
+def One_D_CNN(flatten = True, leakyrelu=False): # 如何使用flatten
     try:
         glove_mat = np.load('./glove/glove_mat.npy')
         # glove_word2id = json.load(open('./pretrain/glove/glove_word2id.json'))

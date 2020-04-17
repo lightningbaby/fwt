@@ -15,12 +15,12 @@ class ProtoNet(MetaTemplate):
     return
 
   def set_forward(self,x,is_feature=False):
-    z_support, z_query  = self.parse_feature(x,is_feature)
+    z_support, z_query  = self.parse_feature(x,is_feature) # [5,5,512], [5,16,512]
     z_support   = z_support.contiguous()
-    z_proto     = z_support.view(self.n_way, self.n_support, -1 ).mean(1) #the shape of z is [n_data, n_dim]
-    z_query     = z_query.contiguous().view(self.n_way* self.n_query, -1 )
+    z_proto     = z_support.view(self.n_way, self.n_support, -1 ).mean(1) #the shape of z is [n_data, n_dim] [5,512]
+    z_query     = z_query.contiguous().view(self.n_way* self.n_query, -1 ) #[80,512]
 
-    dists = euclidean_dist(z_query, z_proto)
+    dists = euclidean_dist(z_query, z_proto) #[80,5]
     scores = -dists
     return scores
 
@@ -31,11 +31,11 @@ class ProtoNet(MetaTemplate):
     z_query     = z_query.contiguous().view(self.n_way* self.n_query, -1 )
     return euclidean_dist(z_proto, z_proto)[0, :5].cpu().numpy()
 
-  def set_forward_loss(self, x):
-    y_query = torch.from_numpy(np.repeat(range( self.n_way ), self.n_query ))
+  def set_forward_loss(self, x): # x [5,21,3,224,224]
+    y_query = torch.from_numpy(np.repeat(range( self.n_way ), self.n_query )) #[80]
     if torch.cuda.is_available():
       y_query = y_query.cuda()
-    scores = self.set_forward(x)
+    scores = self.set_forward(x) #[80,5]
     loss = self.loss_fn(scores, y_query)
     return scores, loss
 

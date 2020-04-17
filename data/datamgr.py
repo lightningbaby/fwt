@@ -77,6 +77,8 @@ class SetDataManager(DataManager):
       sampler = MultiEpisodicBatchSampler(dataset.lens(), self.n_way, self.n_eposide )
     else:
       dataset = SetDataset( data_file , self.batch_size, transform )
+      # dataset 里面有1）标签列表cl_list 0～N-1, 2）源数据meta 3）sub_dataloader 里面是 每个类 对应的dataloader
+      # 4）sub_meta 每个类对应的样本, len(dataset)是标签数目
       sampler = EpisodicBatchSampler(len(dataset), self.n_way, self.n_eposide )
     data_loader_params = dict(batch_sampler = sampler,  num_workers=4)
     data_loader = torch.utils.data.DataLoader(dataset, **data_loader_params)

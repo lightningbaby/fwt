@@ -60,7 +60,7 @@ class MetaTemplate(nn.Module):
           self.n_way  = x.size(0)
         optimizer.zero_grad()
         _, loss = self.set_forward_loss(x) #  matchingnet predicts _ [80,5],first resnet extract features,then FCE ,nllloss
-        loss.backward()
+        loss.backward() # protonet _[80,5]
         optimizer.step()
         avg_loss = avg_loss+loss.item()
 

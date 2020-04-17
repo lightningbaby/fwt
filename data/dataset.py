@@ -34,21 +34,21 @@ class SetDataset:
     with open(data_file, 'r') as f:
       self.meta = json.load(f)
 
-    self.cl_list = np.unique(self.meta['image_labels']).tolist()
+    self.cl_list = np.unique(self.meta['image_labels']).tolist() # 0~N-1, N 是标签类别总数
 
     self.sub_meta = {}
     for cl in self.cl_list:
       self.sub_meta[cl] = []
 
     for x,y in zip(self.meta['image_names'],self.meta['image_labels']):
-      self.sub_meta[y].append(x)
+      self.sub_meta[y].append(x) # sub_meta 存为了{label1:[ins1_path,ins2_path...],label2:[ins1_path,ins2_path,...]}
 
     self.sub_dataloader = []
     sub_data_loader_params = dict(batch_size = batch_size,
         shuffle = True,
         num_workers = 0, #use main thread only or may receive multiple batches
         pin_memory = False)
-    for cl in self.cl_list:
+    for cl in self.cl_list: # 每一个类 cl的数据 sub_meta[cl] 构成一个单独的sub_dataloader
       sub_dataset = SubDataset(self.sub_meta[cl], cl, transform = transform )
       self.sub_dataloader.append( torch.utils.data.DataLoader(sub_dataset, **sub_data_loader_params) )
 
@@ -68,9 +68,9 @@ class MultiSetDataset:
       with open(data_file, 'r') as f:
         meta = json.load(f)
       cl_list = np.unique(meta['image_labels']).tolist()
-      self.cl_list = np.concatenate((self.cl_list, cl_list))
+      self.cl_list = np.concatenate((self.cl_list, cl_list)) #把标签存为tuple
 
-      sub_meta = {}
+      sub_meta = {} # {0:[],1:[].....}
       for cl in cl_list:
         sub_meta[cl] = []
 
@@ -114,7 +114,7 @@ class SubDataset:
     return img, target
 
   def __len__(self):
-    return len(self.sub_meta)
+    return len(self.sub_meta) # 样本数目，miniImagenet的一个类别是600个样本，所以这里长度是600
 
 
 class EpisodicBatchSampler(object):

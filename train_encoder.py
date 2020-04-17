@@ -19,7 +19,7 @@ import json
 from methods import backbone
 from methods.re_backbone import model_dict
 from data.re_datamgr import  SimpleREDataManager
-from data.datamgr import SetDataManager
+from data.re_datamgr import SetREDataManager
 from methods.re_baselinetrain import BaselineTrain
 from methods.protonet import ProtoNet
 from methods.matchingnet import MatchingNet
@@ -87,7 +87,7 @@ if __name__=='__main__':
   if params.dataset == 'multi':
     print('  train with multiple seen domains (unseen domain: {})'.format(params.testset))
     # datasets = ['miniImagenet', 'cars', 'places', 'cub', 'plantae']
-    datasets = ['train_wiki', 'nyt', 'semeval','pubmed']
+    datasets = ['fwt_sub_test_wiki', 'fwt_sub_val_nyt', 'fwt_sub_val_wiki']
     datasets.remove(params.testset)
     base_file = [os.path.join(params.data_dir, params.train, '.json') for dataset in datasets]
     val_file  = os.path.join(params.data_dir, params.val,'.json')
@@ -118,13 +118,13 @@ if __name__=='__main__':
     #if test_n_way is smaller than train_n_way, reduce n_query to keep batch size small
     # n_query = max(1, int(16* params.test_n_way/params.train_n_way)) # 16
 
-    train_few_shot_params    = dict(n_way = params.train_n_way, n_support = params.n_shot, batch_size=batch_size, n_query=params.n_query)  # （5，5）
-    base_datamgr            = SetDataManager(**train_few_shot_params)
-    base_loader             = base_datamgr.get_data_loader(base_file)
+    train_few_shot_params    = dict(n_way = params.train_n_way, n_support = params.n_shot)  # （5，5）
+    base_datamgr            = SetREDataManager(max_length=params.max_length, n_query=params.n_query,**train_few_shot_params)
+    base_loader             = base_datamgr.get_data_loader(base_file,params.max_length)
 
-    test_few_shot_params     = dict(n_way = params.test_n_way, n_support = params.n_shot, batch_size=batch_size, n_query=params.n_query)  # （5，5）
-    val_datamgr             = SetDataManager(**test_few_shot_params)
-    val_loader              = val_datamgr.get_data_loader(val_file)
+    test_few_shot_params     = dict(n_way = params.test_n_way, n_support = params.n_shot)  # （5，5）
+    val_datamgr             = SetREDataManager(max_length=params.max_length, n_query=params.n_query, **test_few_shot_params)
+    val_loader              = val_datamgr.get_data_loader(val_file,params.max_length)
 
     if params.method == 'protonet':
       model           = ProtoNet( model_dict[params.model], tf_path=params.tf_dir, **train_few_shot_params)

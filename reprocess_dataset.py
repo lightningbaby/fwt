@@ -13,8 +13,12 @@
 # import lib
 
 import json
-in_path=''
-out_path=''
+import os
+root='re_data'
+in_file_name='sub_val_nyt.json' # 需要填写
+out_file_name='fwt_'+in_file_name
+in_path=os.path.join(root,in_file_name)
+out_path=os.path.join(root,out_file_name)
 
 data=json.load(open(in_path))
 all_data=[]

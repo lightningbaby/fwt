@@ -16,27 +16,13 @@
 # This code is modified from https://github.com/facebookresearch/low-shot-shrink-hallucinate
 
 import torch
-from data.dataset import  SetDataset, MultiSetDataset, EpisodicBatchSampler, MultiEpisodicBatchSampler
+# from data.dataset import  SetDataset, MultiSetDataset, EpisodicBatchSampler, MultiEpisodicBatchSampler
 from abc import abstractmethod
 import torch.utils.data as data
-from data.re_dataset import FewRelDataset
+from data.re_dataset import FewRelDataset, SetDataset, MultiSetDataset, EpisodicBatchSampler, MultiEpisodicBatchSampler
 import json
 
 
-
-# def collate_fn(data):
-#     batch_data = {'word': [], 'pos1': [], 'pos2': [], 'mask': []}
-#     batch_label = []
-#     all_sets, all_labels = zip(*data)
-#
-#     for i in range(len(all_sets)):
-#         for k in all_sets[i]:
-#             batch_data[k] += all_sets[i][k]
-#         batch_label += all_labels[i]
-#     for k in batch_data:
-#         batch_data[k] = torch.stack(batch_data[k], 0)
-#     batch_label = torch.tensor(batch_label)
-#     return batch_data,  batch_label
 def collate_fn(data):
     batch_data = {'word': '', 'pos1': '', 'pos2': '', 'mask': ''}
     # batch_data = []
@@ -90,20 +76,22 @@ class SimpleREDataManager(DataManager):
 
 
 
-class SetDataManager(DataManager):
-  def __init__(self, n_way, n_support, n_query, n_eposide=100):
-    super(SetDataManager, self).__init__()
+class SetREDataManager(DataManager):
+  def __init__(self, n_way, n_support, n_query, max_length, n_eposide=100):
+    super(SetREDataManager, self).__init__()
     self.n_way = n_way
     self.batch_size = n_support + n_query
     self.n_eposide = n_eposide
+    self.max_length=max_length
 
 
-  def get_data_loader(self, data_file, max_length): #parameters that would change on train/val set
+  def get_data_loader(self, data_file,tmp): #parameters that would change on train/val set
+
     if isinstance(data_file, list):
       dataset = MultiSetDataset( data_file , self.batch_size )
       sampler = MultiEpisodicBatchSampler(dataset.lens(), self.n_way, self.n_eposide )
     else:
-      dataset = SetDataset( data_file , self.batch_size )
+      dataset = SetDataset( data_file , self.batch_size, self.max_length)
       sampler = EpisodicBatchSampler(len(dataset), self.n_way, self.n_eposide )
     data_loader_params = dict(batch_sampler = sampler,  num_workers=4)
     data_loader = torch.utils.data.DataLoader(dataset, **data_loader_params)
