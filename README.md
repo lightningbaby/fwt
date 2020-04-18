@@ -1,3 +1,5 @@
+###File Explanation
+For FSL RC:`train_encoder.py` and other file with `re` prefix in name.
 
 
 ### Datasets
