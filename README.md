@@ -10,7 +10,7 @@ We adopt `baseline++` for MatchingNet, and `baseline` from [CloserLookFewShot](h
 
 -Train pre-trained feature encoder (specify `PRETRAIN` to `baseline++` or `baseline`).
 ```
-python3 train_baseline.py --method baseline --dataset fwt_sub_test_wiki --name PRETRAIN 
+python3 train_encoder.py --method baseline --dataset fwt_sub_test_wiki --name PRETRAIN 
 ```
 
 ### Training with multiple seen domains
@@ -18,7 +18,7 @@ Baseline training w/o feature-wise transformations.
 - `METHOD` : `matchingnet`, `relationnet_softmax`, or `gnnnet`, or `protonet`.
 - `TESTSET`: unseen domain `fwt_sub_val_nyt`, `fwt_sub_val_wiki`.
 ```
-python3 train_baseline.py --method protonet --dataset multi --testset TESTSET --name multi_TESTSET_ori_METHOD --warmup PRETRAIN
+python3 train_encoder.py --method protonet --dataset multi --testset TESTSET --name multi_TESTSET_ori_METHOD --warmup PRETRAIN
 ```
 Training w/ learning-to-learned feature-wise transformations.
 ```
