@@ -1,5 +1,5 @@
 test/*
 re_data/*
 glove/*
-output/*
+output/checkpoints/*
 !output/checkpoints/*.py
