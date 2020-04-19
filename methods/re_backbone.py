@@ -22,7 +22,38 @@ import torch.nn.functional as F
 from torch.nn.utils import weight_norm
 from toolkit import encoder
 import numpy as np
+from methods import Attention
 import json
+
+
+def get_torch_layer_with_weights(feature_dim, head_num, weights, bias):
+  layer = Attention.MultiHeadAttention(feature_dim, head_num)
+  layer.linear_q.weight = torch.nn.Parameter(
+    torch.from_numpy(weights[:, :feature_dim]).transpose(1, 0)
+  )
+  layer.linear_q.bias = torch.nn.Parameter(
+    torch.from_numpy(bias[:feature_dim])
+  )
+  layer.linear_k.weight = torch.nn.Parameter(
+    torch.from_numpy(weights[:, feature_dim:feature_dim * 2]).transpose(1, 0)
+  )
+  layer.linear_k.bias = torch.nn.Parameter(
+    torch.from_numpy(bias[feature_dim:feature_dim * 2])
+  )
+  layer.linear_v.weight = torch.nn.Parameter(
+    torch.from_numpy(weights[:, feature_dim * 2:feature_dim * 3]).transpose(1, 0)
+  )
+  layer.linear_v.bias = torch.nn.Parameter(
+    torch.from_numpy(bias[feature_dim * 2:feature_dim * 3])
+  )
+  layer.linear_o.weight = torch.nn.Parameter(
+    torch.from_numpy(weights[:, -feature_dim:]).transpose(1, 0)
+  )
+  layer.linear_o.bias = torch.nn.Parameter(
+    torch.from_numpy(bias[-feature_dim:])
+  )
+  return layer
+
 # --- gaussian initialize ---
 def init_layer(L):
   # Initialization using fan-in
@@ -55,6 +86,7 @@ class Flatten(nn.Module):
 
   def forward(self, x):
     return x.view(x.size(0), -1)
+
 
 # --- LSTMCell module for matchingnet ---
 class LSTMCell(nn.Module):
@@ -459,19 +491,27 @@ class ResNet(nn.Module):
 class CNNSentenceEncoder(nn.Module):
 
     def __init__(self, word_vec_mat, max_length, word_embedding_dim=50,
-                 pos_embedding_dim=5, hidden_size=230):
+                 pos_embedding_dim=5, hidden_size=230, num_heads = 4):
         nn.Module.__init__(self)
         self.hidden_size = hidden_size
         self.max_length = max_length
         self.embedding = encoder.embedding.Embedding(word_vec_mat, max_length,
                                                              word_embedding_dim, pos_embedding_dim)
+        seq_len, feature_dim, head_num = max_length, word_embedding_dim+2*pos_embedding_dim, num_heads
+        weights = np.random.standard_normal((feature_dim, feature_dim * 4))
+        bias = np.random.standard_normal((feature_dim * 4,))
+
+        self.attention = get_torch_layer_with_weights(feature_dim, head_num, weights, bias)
+
         self.encoder = encoder.encoder.Encoder(max_length, word_embedding_dim,
                                                        pos_embedding_dim, hidden_size)
+
         # self.word2id = word2id
         self.final_feat_dim = 230
 
     def forward(self, inputs): # inputs[batch_size,512]，一个样本有 word,pos1,pos2,mask,每一个是128维，4个拼成一行 所以是512维
-        x = self.embedding(inputs) # x [4,128,60] [batch，128维，50+5+5（word 50维，每个pos5维）]
+        x = self.embedding(inputs).double() # x [4,128,60] [batch，128维，50+5+5（word 50维，每个pos5维）]
+        x = self.attention(x,x,x).float()
         x = self.encoder(x) # x[batch,230]
         return x
 
@@ -510,3 +550,4 @@ model_dict = dict(Conv4 = Conv4,
                   ResNet18 = ResNet18,
                   ResNet34 = ResNet34,
                   cnn = One_D_CNN)
+#if __name__=='__main__':

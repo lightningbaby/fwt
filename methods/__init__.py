@@ -4,3 +4,4 @@ from . import matchingnet
 from . import protonet
 from . import relationnet
 from . import LFTNet
+from . import Attention

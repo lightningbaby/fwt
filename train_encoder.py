@@ -26,7 +26,7 @@ from methods.matchingnet import MatchingNet
 from methods.relationnet import RelationNet
 from methods.gnnnet import GnnNet
 from re_args import parse_args, get_resume_file, load_warmup_state
-from toolkit import data_preprocess, sentence_encoder, encoder
+#from toolkit import data_preprocess, sentence_encoder, encoder
 
 def train(base_loader, val_loader, model, start_epoch, stop_epoch, params):
 
