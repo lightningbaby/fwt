@@ -2,4 +2,4 @@ test/*
 re_data/*
 glove/*
 output/*
-!*.py
+!output/checkpoints/*.py
