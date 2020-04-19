@@ -1,2 +1,5 @@
 test/*
 re_data/*
+glove/*
+output/*
+!*.py
