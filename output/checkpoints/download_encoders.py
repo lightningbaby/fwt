@@ -1,5 +1,5 @@
 from subprocess import call
-
+import os
 call('wget http://vllab.ucmerced.edu/ym41608/projects/CrossDomainFewShot/checkpoints/baseline.tar.gz', shell=True)
 call('wget http://vllab.ucmerced.edu/ym41608/projects/CrossDomainFewShot/checkpoints/baseline++.tar.gz', shell=True)
 call('tar -zxf baseline.tar.gz', shell=True)
