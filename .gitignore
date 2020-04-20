@@ -1,5 +1,7 @@
 test/*
 re_data/*
 glove/*
+.idea/
+__pycache__/
 output/checkpoints/*
 !output/checkpoints/*.py
