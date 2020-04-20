@@ -44,7 +44,9 @@ class MultiHeadAttention(nn.Module):
         self.linear_o = nn.Linear(in_features, in_features, bias)
 
     def forward(self, q, k, v, mask=None):
-        q, k, v = self.linear_q(q), self.linear_k(k), self.linear_v(v)
+        q = self.linear_q(q)
+        k = self.linear_k(k)
+        v = self.linear_v(v)
         if self.activation is not None:
             q = self.activation(q)
             k = self.activation(k)

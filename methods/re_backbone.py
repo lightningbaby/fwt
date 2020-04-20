@@ -502,7 +502,9 @@ class CNNSentenceEncoder(nn.Module):
         bias = np.random.standard_normal((feature_dim * 4,))
 
         self.attention = get_torch_layer_with_weights(feature_dim, head_num, weights, bias)
-
+        #h0 = torch.randn(4, 3, 20)
+        #c0 = torch.randn(4, 3, 20)
+        self.lstm = torch.nn.LSTM(feature_dim,feature_dim)
         self.encoder = encoder.encoder.Encoder(max_length, word_embedding_dim,
                                                        pos_embedding_dim, hidden_size)
 
@@ -510,7 +512,10 @@ class CNNSentenceEncoder(nn.Module):
         self.final_feat_dim = 230
 
     def forward(self, inputs): # inputs[batch_size,512]，一个样本有 word,pos1,pos2,mask,每一个是128维，4个拼成一行 所以是512维
-        x = self.embedding(inputs).double() # x [4,128,60] [batch，128维，50+5+5（word 50维，每个pos5维）]
+        x = self.embedding(inputs) # x [4,128,60] [batch，128维，50+5+5（word 50维，每个pos5维）]
+        x = x.transpose(0,1)
+        x,hidden = self.lstm(x)
+        x = x.transpose(0,1).double()
         x = self.attention(x,x,x).float()
         x = self.encoder(x) # x[batch,230]
         return x
