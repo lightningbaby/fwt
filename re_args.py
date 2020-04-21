@@ -36,6 +36,10 @@ def parse_args(script):
   parser.add_argument('--test', default='fwt_sub_test_wiki', help='test file')
   parser.add_argument('--batch_size', default=4, type=int, help='batch size')
   parser.add_argument('--n_query', default=5, type=int,help='Num of query per class')
+  parser.add_argument('--proto_attention', default=False, type=bool,
+                      help='whether to switch on proto attention True or False')
+  parser.add_argument('--proto_distance', default='Euclidean', type=str,
+                      help='methon to measure distance, Euclidean or MLP')
   if script == 'train':
     parser.add_argument('--num_classes' , default=8, type=int, help='total number of classes in softmax, only used in baseline')
     parser.add_argument('--save_freq'   , default=25, type=int, help='Save frequency')

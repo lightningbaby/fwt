@@ -17,7 +17,8 @@ def parse_args(script):
   parser.add_argument('--name'        , default='tmp', type=str, help='')
   parser.add_argument('--save_dir'    , default='./output', type=str, help='')
   parser.add_argument('--data_dir'    , default='./filelists', type=str, help='')
-
+  parser.add_argument('--proto_attention', default=True, type=bool, help='whether to switch on proto attention True or False')
+  parser.add_argument('--proto_distance', default='Euclidean', type=str, help='methon to measure distance, Euclidean or MLP')
   if script == 'train':
     parser.add_argument('--num_classes' , default=200, type=int, help='total number of classes in softmax, only used in baseline')
     parser.add_argument('--save_freq'   , default=25, type=int, help='Save frequency')

@@ -128,7 +128,7 @@ if __name__=='__main__':
     val_loader              = val_datamgr.get_data_loader(val_file,params.max_length)
 
     if params.method == 'protonet':
-      model           = ProtoNet( model_dict[params.model], tf_path=params.tf_dir, **train_few_shot_params)
+      model           = ProtoNet( model_dict[params.model], tf_path=params.tf_dir, **train_few_shot_params,proto_attention=params.proto_attention, distance=params.proto_distance)
     elif params.method == 'gnnnet':
       model           = GnnNet( model_dict[params.model], tf_path=params.tf_dir, **train_few_shot_params)
     elif params.method == 'matchingnet':

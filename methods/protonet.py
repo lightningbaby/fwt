@@ -7,7 +7,7 @@ from torch.nn import functional as F
 from methods.meta_template import MetaTemplate
 from methods import Attention
 class ProtoNet(MetaTemplate):
-  def __init__(self, model_func,  n_way, n_support, tf_path=None, hidden_size=230, num_heads=2):
+  def __init__(self, model_func,  n_way, n_support, tf_path=None, hidden_size=230, num_heads=2, distance='Euclidean',proto_attention = False):
     super(ProtoNet, self).__init__(model_func,  n_way, n_support, tf_path=tf_path)
     self.loss_fn = nn.CrossEntropyLoss()
     self.method = 'ProtoNet'
@@ -19,14 +19,17 @@ class ProtoNet(MetaTemplate):
     self.common_gain = nn.Parameter(torch.ones(hidden_size, dtype=torch.float))
     self.linear1 = nn.Linear(2*hidden_size,hidden_size,True)
     self.linear2 = nn.Linear(hidden_size, 1, True)
+    self.atten_or_not = proto_attention
+    self.distance = distance
   def reset_modules(self):
     return
 
   def set_forward(self,x,is_feature=False):
     z_support, z_query  = self.parse_feature(x,is_feature) # [5,5,512], [5,16,512]
     #z_query = torch.ones(18400).view(5,16,230)
-    a = self.attention(z_query,z_support,z_support)
-    z_query = (a + z_query)/2  # 效果待测试
+    if self.atten_or_not == True:
+      a = self.attention(z_query,z_support,z_support)
+      z_query = (a + z_query)/2  # 效果待测试
     z_support   = z_support.contiguous()
     z_support   = z_support.view(self.n_way, self.n_support, -1 )
     z_proto     = z_support.float().mean(1) #the shape of z is [n_data, n_dim] [N,K,D]
@@ -46,11 +49,13 @@ class ProtoNet(MetaTemplate):
     z_proto     = z_support.view(self.n_way, self.n_support, -1 ).mean(1) #the shape of z is [n_data, n_dim] [5,512]
     z_query     = z_query.contiguous().view(self.n_way* self.n_query, -1 ) #[80,512]
 
-    #dists = euclidean_dist(z_query, z_proto) #[80,5]
-    #scores = -dists
-    scores = self.get_distance_by_MLP(z_proto,z_query)
-
-    return scores
+    if self.distance == 'Euclidean':
+      dists = euclidean_dist(z_query, z_proto) #[80,5]
+      scores = -dists
+      return scores
+    else:
+      scores = self.get_distance_by_MLP(z_proto,z_query)
+      return scores
   def get_distance_by_MLP(self,proto,query):   # concat proto_vector with query_vector
     sum = torch.cat([query[0], proto[0]], 0).unsqueeze(0)
     for tmp in query:
