@@ -26,34 +26,6 @@ from methods import Attention
 import json
 
 
-def get_torch_layer_with_weights(feature_dim, head_num, weights, bias):
-  layer = Attention.MultiHeadAttention(feature_dim, head_num)
-  layer.linear_q.weight = torch.nn.Parameter(
-    torch.from_numpy(weights[:, :feature_dim]).transpose(1, 0)
-  )
-  layer.linear_q.bias = torch.nn.Parameter(
-    torch.from_numpy(bias[:feature_dim])
-  )
-  layer.linear_k.weight = torch.nn.Parameter(
-    torch.from_numpy(weights[:, feature_dim:feature_dim * 2]).transpose(1, 0)
-  )
-  layer.linear_k.bias = torch.nn.Parameter(
-    torch.from_numpy(bias[feature_dim:feature_dim * 2])
-  )
-  layer.linear_v.weight = torch.nn.Parameter(
-    torch.from_numpy(weights[:, feature_dim * 2:feature_dim * 3]).transpose(1, 0)
-  )
-  layer.linear_v.bias = torch.nn.Parameter(
-    torch.from_numpy(bias[feature_dim * 2:feature_dim * 3])
-  )
-  layer.linear_o.weight = torch.nn.Parameter(
-    torch.from_numpy(weights[:, -feature_dim:]).transpose(1, 0)
-  )
-  layer.linear_o.bias = torch.nn.Parameter(
-    torch.from_numpy(bias[-feature_dim:])
-  )
-  return layer
-
 # --- gaussian initialize ---
 def init_layer(L):
   # Initialization using fan-in
@@ -501,10 +473,9 @@ class CNNSentenceEncoder(nn.Module):
         weights = np.random.standard_normal((feature_dim, feature_dim * 4))
         bias = np.random.standard_normal((feature_dim * 4,))
 
-        self.attention = get_torch_layer_with_weights(feature_dim, head_num, weights, bias)
-        #h0 = torch.randn(4, 3, 20)
-        #c0 = torch.randn(4, 3, 20)
-        self.lstm = torch.nn.LSTM(feature_dim,feature_dim)
+        self.attention = Attention.get_torch_layer_with_weights(feature_dim, head_num, weights, bias)
+        self.maxpool = nn.MaxPool1d(2, stride=2)
+        self.lstm = torch.nn.LSTM(feature_dim,feature_dim,bidirectional=True)
         self.encoder = encoder.encoder.Encoder(max_length, word_embedding_dim,
                                                        pos_embedding_dim, hidden_size)
 
@@ -516,6 +487,7 @@ class CNNSentenceEncoder(nn.Module):
         x = x.transpose(0,1)
         x,hidden = self.lstm(x)
         x = x.transpose(0,1).double()
+        x = self.maxpool(x)
         x = self.attention(x,x,x).float()
         x = self.encoder(x) # x[batch,230]
         return x

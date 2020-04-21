@@ -6,6 +6,34 @@ import torch.nn.functional as F
 
 __all__ = ['MultiHeadAttention', 'ScaledDotProductAttention']
 
+def get_torch_layer_with_weights(feature_dim, head_num, weights, bias):
+  layer = MultiHeadAttention(feature_dim, head_num)
+  layer.linear_q.weight = torch.nn.Parameter(
+    torch.from_numpy(weights[:, :feature_dim]).transpose(1, 0)
+  )
+  layer.linear_q.bias = torch.nn.Parameter(
+    torch.from_numpy(bias[:feature_dim])
+  )
+  layer.linear_k.weight = torch.nn.Parameter(
+    torch.from_numpy(weights[:, feature_dim:feature_dim * 2]).transpose(1, 0)
+  )
+  layer.linear_k.bias = torch.nn.Parameter(
+    torch.from_numpy(bias[feature_dim:feature_dim * 2])
+  )
+  layer.linear_v.weight = torch.nn.Parameter(
+    torch.from_numpy(weights[:, feature_dim * 2:feature_dim * 3]).transpose(1, 0)
+  )
+  layer.linear_v.bias = torch.nn.Parameter(
+    torch.from_numpy(bias[feature_dim * 2:feature_dim * 3])
+  )
+  layer.linear_o.weight = torch.nn.Parameter(
+    torch.from_numpy(weights[:, -feature_dim:]).transpose(1, 0)
+  )
+  layer.linear_o.bias = torch.nn.Parameter(
+    torch.from_numpy(bias[-feature_dim:])
+  )
+  return layer
+
 
 class ScaledDotProductAttention(nn.Module):
 
@@ -44,6 +72,9 @@ class MultiHeadAttention(nn.Module):
         self.linear_o = nn.Linear(in_features, in_features, bias)
 
     def forward(self, q, k, v, mask=None):
+        q = q.double()
+        k = k.double()
+        v = v.double()
         q = self.linear_q(q)
         k = self.linear_k(k)
         v = self.linear_v(v)
@@ -63,6 +94,7 @@ class MultiHeadAttention(nn.Module):
         y = self.linear_o(y)
         if self.activation is not None:
             y = self.activation(y)
+        y = y.float()
         return y
 
     @staticmethod

@@ -2,10 +2,22 @@
 <project version="4">
   <component name="ChangeListManager">
     <list default="true" id="125a8838-934f-40b0-a09e-b1d6d9ada7bc" name="Default" comment="">
-      <change beforePath="$PROJECT_DIR$/.idea/fwt.iml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/fwt.iml" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/.idea/misc.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/misc.xml" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/output/log/multi_TESTSET_ori_METHOD/events.out.tfevents.1587438883.bogon" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/output/log/multi_TESTSET_ori_METHOD/events.out.tfevents.1587439607.bogon" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/output/log/multi_TESTSET_ori_METHOD/events.out.tfevents.1587439674.bogon" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/output/log/multi_TESTSET_ori_METHOD/events.out.tfevents.1587440815.bogon" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/output/log/multi_TESTSET_ori_METHOD/events.out.tfevents.1587440891.bogon" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/output/log/multi_TESTSET_ori_METHOD/events.out.tfevents.1587441007.bogon" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/output/log/multi_TESTSET_ori_METHOD/events.out.tfevents.1587441034.bogon" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/output/log/multi_TESTSET_ori_METHOD/events.out.tfevents.1587441844.bogon" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/output/log/multi_TESTSET_ori_METHOD/events.out.tfevents.1587441890.bogon" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/output/log/multi_TESTSET_ori_METHOD/events.out.tfevents.1587441973.bogon" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/output/log/multi_TESTSET_ori_METHOD/events.out.tfevents.1587457363.bogon" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/output/log/multi_TESTSET_ori_METHOD/events.out.tfevents.1587459568.bogon" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/output/log/multi_TESTSET_ori_METHOD/events.out.tfevents.1587459708.bogon" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/.idea/workspace.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/workspace.xml" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/methods/Attention.py" beforeDir="false" afterPath="$PROJECT_DIR$/methods/Attention.py" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/methods/protonet.py" beforeDir="false" afterPath="$PROJECT_DIR$/methods/protonet.py" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/methods/re_backbone.py" beforeDir="false" afterPath="$PROJECT_DIR$/methods/re_backbone.py" afterDir="false" />
     </list>
     <option name="EXCLUDED_CONVERTED_TO_IGNORED" value="true" />
@@ -19,7 +31,7 @@
     <SUITE FILE_PATH="coverage/fwt$train.coverage" NAME="train Coverage Results" MODIFIED="1587243537384" SOURCE_PROVIDER="com.intellij.coverage.DefaultCoverageFileProvider" RUNNER="coverage.py" COVERAGE_BY_TEST_ENABLED="true" COVERAGE_TRACING_ENABLED="false" WORKING_DIRECTORY="$PROJECT_DIR$" />
     <SUITE FILE_PATH="coverage/fwt$re_backbone.coverage" NAME="re_backbone Coverage Results" MODIFIED="1587237499025" SOURCE_PROVIDER="com.intellij.coverage.DefaultCoverageFileProvider" RUNNER="coverage.py" COVERAGE_BY_TEST_ENABLED="true" COVERAGE_TRACING_ENABLED="false" WORKING_DIRECTORY="$PROJECT_DIR$/methods" />
     <SUITE FILE_PATH="coverage/fwt$train_baseline.coverage" NAME="train_baseline Coverage Results" MODIFIED="1586871758586" SOURCE_PROVIDER="com.intellij.coverage.DefaultCoverageFileProvider" RUNNER="coverage.py" COVERAGE_BY_TEST_ENABLED="true" COVERAGE_TRACING_ENABLED="false" WORKING_DIRECTORY="$PROJECT_DIR$" />
-    <SUITE FILE_PATH="coverage/fwt$train_encoder.coverage" NAME="train_encoder Coverage Results" MODIFIED="1587372990345" SOURCE_PROVIDER="com.intellij.coverage.DefaultCoverageFileProvider" RUNNER="coverage.py" COVERAGE_BY_TEST_ENABLED="true" COVERAGE_TRACING_ENABLED="false" WORKING_DIRECTORY="$PROJECT_DIR$" />
+    <SUITE FILE_PATH="coverage/fwt$train_encoder.coverage" NAME="train_encoder Coverage Results" MODIFIED="1587464818598" SOURCE_PROVIDER="com.intellij.coverage.DefaultCoverageFileProvider" RUNNER="coverage.py" COVERAGE_BY_TEST_ENABLED="true" COVERAGE_TRACING_ENABLED="false" WORKING_DIRECTORY="$PROJECT_DIR$" />
     <SUITE FILE_PATH="coverage/fwt$write_miniImagenet_filelist.coverage" NAME="write_miniImagenet_filelist Coverage Results" MODIFIED="1586859018468" SOURCE_PROVIDER="com.intellij.coverage.DefaultCoverageFileProvider" RUNNER="coverage.py" COVERAGE_BY_TEST_ENABLED="true" COVERAGE_TRACING_ENABLED="false" WORKING_DIRECTORY="$PROJECT_DIR$/filelists/miniImagenet" />
     <SUITE FILE_PATH="coverage/fwt$protonet.coverage" NAME="protonet Coverage Results" MODIFIED="1587247215502" SOURCE_PROVIDER="com.intellij.coverage.DefaultCoverageFileProvider" RUNNER="coverage.py" COVERAGE_BY_TEST_ENABLED="true" COVERAGE_TRACING_ENABLED="false" WORKING_DIRECTORY="$PROJECT_DIR$/methods" />
   </component>
@@ -37,8 +49,8 @@
       <file leaf-file-name="codecs.py" pinned="false" current-in-tab="false">
         <entry file="file://$USER_HOME$/anaconda3/envs/nlp/lib/python3.6/codecs.py">
           <provider selected="true" editor-type-id="text-editor">
-            <state relative-caret-position="-5">
-              <caret line="300" selection-start-line="300" selection-end-line="300" />
+            <state relative-caret-position="175">
+              <caret line="310" selection-start-line="310" selection-end-line="310" />
             </state>
           </provider>
         </entry>
@@ -46,17 +58,8 @@
       <file leaf-file-name="meta_template.py" pinned="false" current-in-tab="false">
         <entry file="file://$PROJECT_DIR$/methods/meta_template.py">
           <provider selected="true" editor-type-id="text-editor">
-            <state relative-caret-position="211">
-              <caret line="41" selection-start-line="41" selection-end-line="41" />
-            </state>
-          </provider>
-        </entry>
-      </file>
-      <file leaf-file-name="functional.py" pinned="false" current-in-tab="false">
-        <entry file="file://$USER_HOME$/anaconda3/envs/nlp/lib/python3.6/site-packages/torch/nn/functional.py">
-          <provider selected="true" editor-type-id="text-editor">
-            <state relative-caret-position="163">
-              <caret line="456" selection-start-line="456" selection-end-line="456" />
+            <state relative-caret-position="136">
+              <caret line="61" selection-start-line="61" selection-end-line="61" />
             </state>
           </provider>
         </entry>
@@ -70,29 +73,11 @@
           </provider>
         </entry>
       </file>
-      <file leaf-file-name="linear.py" pinned="false" current-in-tab="false">
-        <entry file="file://$USER_HOME$/anaconda3/envs/nlp/lib/python3.6/site-packages/torch/nn/modules/linear.py">
-          <provider selected="true" editor-type-id="text-editor">
-            <state relative-caret-position="145">
-              <caret line="86" selection-start-line="86" selection-end-line="86" />
-            </state>
-          </provider>
-        </entry>
-      </file>
-      <file leaf-file-name="module.py" pinned="false" current-in-tab="false">
-        <entry file="file://$USER_HOME$/anaconda3/envs/nlp/lib/python3.6/site-packages/torch/nn/modules/module.py">
-          <provider selected="true" editor-type-id="text-editor">
-            <state relative-caret-position="405">
-              <caret line="540" selection-start-line="540" selection-end-line="540" />
-            </state>
-          </provider>
-        </entry>
-      </file>
-      <file leaf-file-name="protonet.py" pinned="false" current-in-tab="false">
+      <file leaf-file-name="protonet.py" pinned="false" current-in-tab="true">
         <entry file="file://$PROJECT_DIR$/methods/protonet.py">
           <provider selected="true" editor-type-id="text-editor">
-            <state relative-caret-position="136">
-              <caret line="19" selection-start-line="19" selection-end-line="19" />
+            <state relative-caret-position="192">
+              <caret line="53" column="73" selection-start-line="53" selection-start-column="73" selection-end-line="53" selection-end-column="73" />
               <folding>
                 <element signature="e#81#93#0" expanded="true" />
               </folding>
@@ -100,11 +85,29 @@
           </provider>
         </entry>
       </file>
+      <file leaf-file-name="linear.py" pinned="false" current-in-tab="false">
+        <entry file="file://$USER_HOME$/anaconda3/envs/nlp/lib/python3.6/site-packages/torch/nn/modules/linear.py">
+          <provider selected="true" editor-type-id="text-editor">
+            <state relative-caret-position="145">
+              <caret line="71" selection-start-line="71" selection-end-line="71" />
+            </state>
+          </provider>
+        </entry>
+      </file>
+      <file leaf-file-name="module.py" pinned="false" current-in-tab="false">
+        <entry file="file://$USER_HOME$/anaconda3/envs/nlp/lib/python3.6/site-packages/torch/nn/modules/module.py">
+          <provider selected="true" editor-type-id="text-editor">
+            <state relative-caret-position="145">
+              <caret line="584" selection-start-line="584" selection-end-line="584" />
+            </state>
+          </provider>
+        </entry>
+      </file>
       <file leaf-file-name="re_backbone.py" pinned="false" current-in-tab="false">
         <entry file="file://$PROJECT_DIR$/methods/re_backbone.py">
           <provider selected="true" editor-type-id="text-editor">
-            <state relative-caret-position="245">
-              <caret line="519" selection-start-line="519" selection-end-line="519" />
+            <state relative-caret-position="167">
+              <caret line="74" column="26" selection-start-line="74" selection-start-column="20" selection-end-line="74" selection-end-column="26" />
               <folding>
                 <element signature="e#427#439#0" expanded="true" />
               </folding>
@@ -112,11 +115,23 @@
           </provider>
         </entry>
       </file>
-      <file leaf-file-name="Attention.py" pinned="false" current-in-tab="true">
+      <file leaf-file-name="re_baselinetrain.py" pinned="false" current-in-tab="false">
+        <entry file="file://$PROJECT_DIR$/methods/re_baselinetrain.py">
+          <provider selected="true" editor-type-id="text-editor">
+            <state relative-caret-position="186">
+              <caret line="60" selection-start-line="60" selection-end-line="60" />
+            </state>
+          </provider>
+        </entry>
+      </file>
+      <file leaf-file-name="Attention.py" pinned="false" current-in-tab="false">
         <entry file="file://$PROJECT_DIR$/methods/Attention.py">
           <provider selected="true" editor-type-id="text-editor">
-            <state relative-caret-position="241">
-              <caret line="53" lean-forward="true" selection-start-line="53" selection-end-line="53" />
+            <state relative-caret-position="267">
+              <caret line="68" column="62" selection-start-line="68" selection-start-column="62" selection-end-line="68" selection-end-column="62" />
+              <folding>
+                <element signature="e#0#11#0" expanded="true" />
+              </folding>
             </state>
           </provider>
         </entry>
@@ -137,13 +152,18 @@
       <find>get_distance</find>
       <find>matchingnet</find>
       <find>arg</find>
-      <find>linear</find>
       <find>encoder</find>
       <find>re_data</find>
       <find>re</find>
       <find>imagine</find>
       <find>SetREDataManager</find>
       <find>model_func</find>
+      <find>get</find>
+      <find>float</find>
+      <find>attention</find>
+      <find>linear</find>
+      <find>n_query</find>
+      <find>split</find>
     </findStrings>
   </component>
   <component name="Git.Settings">
@@ -156,13 +176,13 @@
         <option value="$PROJECT_DIR$/methods/__init__.py" />
         <option value="$PROJECT_DIR$/data/__init__.py" />
         <option value="$PROJECT_DIR$/data/re_dataset.py" />
-        <option value="$PROJECT_DIR$/methods/meta_template.py" />
         <option value="$PROJECT_DIR$/train.py" />
         <option value="$PROJECT_DIR$/train_encoder.py" />
         <option value="$PROJECT_DIR$/data/re_datamgr.py" />
-        <option value="$PROJECT_DIR$/methods/protonet.py" />
+        <option value="$PROJECT_DIR$/methods/meta_template.py" />
         <option value="$PROJECT_DIR$/methods/Attention.py" />
         <option value="$PROJECT_DIR$/methods/re_backbone.py" />
+        <option value="$PROJECT_DIR$/methods/protonet.py" />
       </list>
     </option>
   </component>
@@ -423,13 +443,6 @@
   </component>
   <component name="XDebuggerManager">
     <breakpoint-manager>
-      <breakpoints>
-        <line-breakpoint enabled="true" suspend="THREAD" type="python-line">
-          <url>file://$PROJECT_DIR$/methods/protonet.py</url>
-          <line>98</line>
-          <option name="timeStamp" value="40" />
-        </line-breakpoint>
-      </breakpoints>
       <default-breakpoints>
         <breakpoint type="python-exception">
           <properties notifyOnTerminate="true" exception="BaseException">
@@ -437,66 +450,59 @@
           </properties>
         </breakpoint>
       </default-breakpoints>
-      <option name="time" value="57" />
+      <option name="time" value="83" />
     </breakpoint-manager>
   </component>
   <component name="debuggerHistoryManager">
     <expressions id="evaluateExpression">
+      <expression>
+        <expression-string>scores.shape</expression-string>
+        <language-id>Python</language-id>
+        <evaluation-mode>EXPRESSION</evaluation-mode>
+      </expression>
+      <expression>
+        <expression-string>dists.shape</expression-string>
+        <language-id>Python</language-id>
+        <evaluation-mode>EXPRESSION</evaluation-mode>
+      </expression>
+      <expression>
+        <expression-string>dists</expression-string>
+        <language-id>Python</language-id>
+        <evaluation-mode>EXPRESSION</evaluation-mode>
+      </expression>
+      <expression>
+        <expression-string>dist.shape</expression-string>
+        <language-id>Python</language-id>
+        <evaluation-mode>EXPRESSION</evaluation-mode>
+      </expression>
       <expression>
         <expression-string>x.shape</expression-string>
         <language-id>Python</language-id>
         <evaluation-mode>EXPRESSION</evaluation-mode>
       </expression>
       <expression>
-        <expression-string>x,shape</expression-string>
+        <expression-string>input.shape</expression-string>
         <language-id>Python</language-id>
         <evaluation-mode>EXPRESSION</evaluation-mode>
       </expression>
       <expression>
-        <expression-string>q.dtype</expression-string>
+        <expression-string>query.shape</expression-string>
         <language-id>Python</language-id>
         <evaluation-mode>EXPRESSION</evaluation-mode>
       </expression>
       <expression>
-        <expression-string>x.dtype</expression-string>
+        <expression-string>support.shape</expression-string>
         <language-id>Python</language-id>
         <evaluation-mode>EXPRESSION</evaluation-mode>
       </expression>
       <expression>
-        <expression-string>type(q)</expression-string>
-        <language-id>Python</language-id>
-        <evaluation-mode>EXPRESSION</evaluation-mode>
-      </expression>
-      <expression>
-        <expression-string>q.type</expression-string>
-        <language-id>Python</language-id>
-        <evaluation-mode>EXPRESSION</evaluation-mode>
-      </expression>
-      <expression>
-        <expression-string>x[1]</expression-string>
-        <language-id>Python</language-id>
-        <evaluation-mode>EXPRESSION</evaluation-mode>
-      </expression>
-      <expression>
-        <expression-string>x[1].shape</expression-string>
-        <language-id>Python</language-id>
-        <evaluation-mode>EXPRESSION</evaluation-mode>
-      </expression>
-      <expression>
-        <expression-string>x[0].shape</expression-string>
+        <expression-string>sum.shape</expression-string>
         <language-id>Python</language-id>
         <evaluation-mode>EXPRESSION</evaluation-mode>
       </expression>
     </expressions>
   </component>
   <component name="editorHistoryManager">
-    <entry file="file://$PROJECT_DIR$/data/re_datamgr.py">
-      <provider selected="true" editor-type-id="text-editor">
-        <state relative-caret-position="810">
-          <caret line="59" column="35" selection-start-line="59" selection-start-column="35" selection-end-line="59" selection-end-column="35" />
-        </state>
-      </provider>
-    </entry>
     <entry file="file://$PROJECT_DIR$/filelists/plantae/write_plantae_filelist.py">
       <provider selected="true" editor-type-id="text-editor">
         <state>
@@ -703,13 +709,6 @@
         </state>
       </provider>
     </entry>
-    <entry file="file://$APPLICATION_HOME_DIR$/helpers/pydev/_pydev_imps/_pydev_execfile.py">
-      <provider selected="true" editor-type-id="text-editor">
-        <state relative-caret-position="255">
-          <caret line="17" selection-start-line="17" selection-end-line="17" />
-        </state>
-      </provider>
-    </entry>
     <entry file="file://$PROJECT_DIR$/re_args.py">
       <provider selected="true" editor-type-id="text-editor">
         <state relative-caret-position="261">
@@ -780,38 +779,17 @@
         </state>
       </provider>
     </entry>
-    <entry file="file://$PROJECT_DIR$/methods/re_baselinetrain.py">
+    <entry file="file://$APPLICATION_HOME_DIR$/helpers/pydev/_pydev_imps/_pydev_execfile.py">
       <provider selected="true" editor-type-id="text-editor">
-        <state relative-caret-position="427">
-          <caret line="60" selection-start-line="60" selection-end-line="60" />
+        <state relative-caret-position="255">
+          <caret line="17" selection-start-line="17" selection-end-line="17" />
         </state>
       </provider>
     </entry>
-    <entry file="file://$USER_HOME$/anaconda3/envs/nlp/lib/python3.6/site-packages/torch/nn/modules/linear.py">
+    <entry file="file://$USER_HOME$/anaconda3/envs/nlp/lib/python3.6/site-packages/torch/__init__.pyi">
       <provider selected="true" editor-type-id="text-editor">
-        <state relative-caret-position="145">
-          <caret line="86" selection-start-line="86" selection-end-line="86" />
-        </state>
-      </provider>
-    </entry>
-    <entry file="file://$USER_HOME$/anaconda3/envs/nlp/lib/python3.6/site-packages/torch/nn/modules/module.py">
-      <provider selected="true" editor-type-id="text-editor">
-        <state relative-caret-position="405">
-          <caret line="540" selection-start-line="540" selection-end-line="540" />
-        </state>
-      </provider>
-    </entry>
-    <entry file="file://$USER_HOME$/anaconda3/envs/nlp/lib/python3.6/codecs.py">
-      <provider selected="true" editor-type-id="text-editor">
-        <state relative-caret-position="-5">
-          <caret line="300" selection-start-line="300" selection-end-line="300" />
-        </state>
-      </provider>
-    </entry>
-    <entry file="file://$PROJECT_DIR$/train_encoder.py">
-      <provider selected="true" editor-type-id="text-editor">
-        <state relative-caret-position="303">
-          <caret line="167" selection-start-line="167" selection-end-line="167" />
+        <state relative-caret-position="152">
+          <caret line="509" column="8" selection-start-line="509" selection-start-column="8" selection-end-line="509" selection-end-column="8" />
         </state>
       </provider>
     </entry>
@@ -829,27 +807,17 @@
         </state>
       </provider>
     </entry>
-    <entry file="file://$PROJECT_DIR$/methods/meta_template.py">
+    <entry file="file://$PROJECT_DIR$/methods/re_baselinetrain.py">
       <provider selected="true" editor-type-id="text-editor">
-        <state relative-caret-position="211">
-          <caret line="41" selection-start-line="41" selection-end-line="41" />
-        </state>
-      </provider>
-    </entry>
-    <entry file="file://$PROJECT_DIR$/methods/protonet.py">
-      <provider selected="true" editor-type-id="text-editor">
-        <state relative-caret-position="136">
-          <caret line="19" selection-start-line="19" selection-end-line="19" />
-          <folding>
-            <element signature="e#81#93#0" expanded="true" />
-          </folding>
+        <state relative-caret-position="186">
+          <caret line="60" selection-start-line="60" selection-end-line="60" />
         </state>
       </provider>
     </entry>
     <entry file="file://$PROJECT_DIR$/methods/re_backbone.py">
       <provider selected="true" editor-type-id="text-editor">
-        <state relative-caret-position="245">
-          <caret line="519" selection-start-line="519" selection-end-line="519" />
+        <state relative-caret-position="167">
+          <caret line="74" column="26" selection-start-line="74" selection-start-column="20" selection-end-line="74" selection-end-column="26" />
           <folding>
             <element signature="e#427#439#0" expanded="true" />
           </folding>
@@ -858,8 +826,56 @@
     </entry>
     <entry file="file://$PROJECT_DIR$/methods/Attention.py">
       <provider selected="true" editor-type-id="text-editor">
-        <state relative-caret-position="241">
-          <caret line="53" lean-forward="true" selection-start-line="53" selection-end-line="53" />
+        <state relative-caret-position="267">
+          <caret line="68" column="62" selection-start-line="68" selection-start-column="62" selection-end-line="68" selection-end-column="62" />
+          <folding>
+            <element signature="e#0#11#0" expanded="true" />
+          </folding>
+        </state>
+      </provider>
+    </entry>
+    <entry file="file://$USER_HOME$/anaconda3/envs/nlp/lib/python3.6/site-packages/torch/nn/modules/linear.py">
+      <provider selected="true" editor-type-id="text-editor">
+        <state relative-caret-position="145">
+          <caret line="71" selection-start-line="71" selection-end-line="71" />
+        </state>
+      </provider>
+    </entry>
+    <entry file="file://$PROJECT_DIR$/methods/meta_template.py">
+      <provider selected="true" editor-type-id="text-editor">
+        <state relative-caret-position="136">
+          <caret line="61" selection-start-line="61" selection-end-line="61" />
+        </state>
+      </provider>
+    </entry>
+    <entry file="file://$PROJECT_DIR$/train_encoder.py">
+      <provider selected="true" editor-type-id="text-editor">
+        <state relative-caret-position="303">
+          <caret line="167" selection-start-line="167" selection-end-line="167" />
+        </state>
+      </provider>
+    </entry>
+    <entry file="file://$USER_HOME$/anaconda3/envs/nlp/lib/python3.6/codecs.py">
+      <provider selected="true" editor-type-id="text-editor">
+        <state relative-caret-position="175">
+          <caret line="310" selection-start-line="310" selection-end-line="310" />
+        </state>
+      </provider>
+    </entry>
+    <entry file="file://$USER_HOME$/anaconda3/envs/nlp/lib/python3.6/site-packages/torch/nn/modules/module.py">
+      <provider selected="true" editor-type-id="text-editor">
+        <state relative-caret-position="145">
+          <caret line="584" selection-start-line="584" selection-end-line="584" />
+        </state>
+      </provider>
+    </entry>
+    <entry file="file://$PROJECT_DIR$/methods/protonet.py">
+      <provider selected="true" editor-type-id="text-editor">
+        <state relative-caret-position="192">
+          <caret line="53" column="73" selection-start-line="53" selection-start-column="73" selection-end-line="53" selection-end-column="73" />
+          <folding>
+            <element signature="e#81#93#0" expanded="true" />
+          </folding>
         </state>
       </provider>
     </entry>
