@@ -29,15 +29,15 @@ class MetaTemplate(nn.Module):
 
   def parse_feature(self,x,is_feature):
     if torch.cuda.is_available():
-      x = x.cuda()
+      x = x.cuda() #【105，3，224，224】
     if is_feature:
       z_all = x
-    else:
+    else: # x [50,512]
       x           = x.contiguous().view( self.n_way * (self.n_support + self.n_query), *x.size()[2:])
-      z_all       = self.feature.forward(x)
-      z_all       = z_all.view( self.n_way, self.n_support + self.n_query, -1)
-    z_support   = z_all[:, :self.n_support]
-    z_query     = z_all[:, self.n_support:]
+      z_all       = self.feature.forward(x) #[50,230]  [105,512]
+      z_all       = z_all.view( self.n_way, self.n_support + self.n_query, -1) #  [5,10,230]
+    z_support   = z_all[:, :self.n_support] #[5,5,230]
+    z_query     = z_all[:, self.n_support:] #[5,5,230]
 
     return z_support, z_query
 

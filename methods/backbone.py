@@ -154,12 +154,12 @@ class Conv2d_fw(nn.Conv2d): #used in MAML to forward input with fast weight
     if not self.bias is None:
       self.bias.fast = None
 
-  def forward(self, x):
+  def forward(self, x): #[105,3,224,224]
     if self.bias is None:
       if self.weight.fast is not None:
         out = F.conv2d(x, self.weight.fast, None, stride= self.stride, padding=self.padding)
       else:
-        out = super(Conv2d_fw, self).forward(x)
+        out = super(Conv2d_fw, self).forward(x) #[105,64,112,112]
     else:
       if self.weight.fast is not None and self.bias.fast is not None:
         out = F.conv2d(x, self.weight.fast, self.bias.fast, stride= self.stride, padding=self.padding)

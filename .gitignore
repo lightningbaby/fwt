@@ -4,13 +4,9 @@ glove/*
 .idea/
 __pycache__/
 output/checkpoints/*
-output/checkpoints/*.py
 train_smry.py
 README_copy.md
 tt.py
-data/__pycache__/
-methods/__pycache__/
-toolkit/encoder/__pycache__/
-README_copy.md
+
 
 
