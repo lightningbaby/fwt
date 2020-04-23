@@ -14,11 +14,13 @@ class ProtoNet(MetaTemplate):
     self.hidden_size = hidden_size
     weights = np.random.standard_normal((hidden_size, hidden_size * 4))
     bias = np.random.standard_normal((hidden_size * 4,))
-    self.attention = Attention.get_torch_layer_with_weights(hidden_size, num_heads,weights,bias)
+    if proto_attention == True:
+      self.attention = Attention.get_torch_layer_with_weights(hidden_size, num_heads,weights,bias)
     #Aget_torch_layer_with_weights(feature_dim, head_num, weights, bias)
-    self.common_gain = nn.Parameter(torch.ones(hidden_size, dtype=torch.float))
-    self.linear1 = nn.Linear(2*hidden_size,hidden_size,True)
-    self.linear2 = nn.Linear(hidden_size, 1, True)
+    #self.common_gain = nn.Parameter(torch.ones(hidden_size, dtype=torch.float))
+    if distance == 'MLP':
+      self.linear1 = nn.Linear(2*hidden_size,hidden_size,True)
+      self.linear2 = nn.Linear(hidden_size, 1, True)
     self.atten_or_not = proto_attention
     self.distance = distance
   def reset_modules(self):
@@ -26,6 +28,7 @@ class ProtoNet(MetaTemplate):
 
   def set_forward(self,x,is_feature=False):
     z_support, z_query  = self.parse_feature(x,is_feature) # [5,5,512], [5,16,512]
+
     #z_query = torch.ones(18400).view(5,16,230)
     if self.atten_or_not == True:
       a = self.attention(z_query,z_support,z_support)
@@ -34,9 +37,10 @@ class ProtoNet(MetaTemplate):
     z_support   = z_support.view(self.n_way, self.n_support, -1 ) #  [5,5,230]
     z_proto     = z_support.float().mean(1) #the shape of z is [n_data, n_dim] [N,K,D] [5,230]
     z_query     = z_query.contiguous().view(self.n_way* self.n_query, -1 ).float() # [25,230]
-    common_gain = self.common_gain / self.common_gain.sum() * self.hidden_size # [230]
-    #differ_gain = self.differ_gain / self.differ_gain.sum() * self.hidden_size
-    class_common = z_proto * common_gain  # (N, D)
+    #common_gain = self.common_gain / self.common_gain.sum() * self.hidden_size # [230]
+    class_common = z_proto #* common_gain  # (N, D)
+
+    # differ_gain = self.differ_gain / self.differ_gain.sum() * self.hidden_size
 
     support_differ = abs((z_support - class_common.unsqueeze(1)))  # (N, K, D)
     class_differ = torch.mean(support_differ, 1)  # (N, D)
