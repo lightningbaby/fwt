@@ -81,7 +81,7 @@ class ProtoNet(MetaTemplate):
     z_query     = z_query.contiguous().view(self.n_way* self.n_query, -1 )
     return euclidean_dist(z_proto, z_proto)[0, :5].cpu().numpy()
 
-  def set_forward_loss(self, x): # x [5,21,3,224,224]
+  def set_forward_loss(self, x): # x [5,21,3,224,224] [5,10,512]
     y_query = torch.from_numpy(np.repeat(range( self.n_way ), self.n_query )) #[80]
     if torch.cuda.is_available():
       y_query = y_query.cuda()

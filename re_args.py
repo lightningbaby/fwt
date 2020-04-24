@@ -52,7 +52,7 @@ def parse_args(script):
   elif script == 'test':
     parser.add_argument('--split'       , default='novel', help='base/val/novel')
     # parser.add_argument('--save_epoch', default=399, type=int,help ='save feature from the model trained in x epoch, use the best model if x is -1')
-    parser.add_argument('--save_epoch', default=1, type=int,help ='save feature from the model trained in x epoch, use the best model if x is -1')
+    parser.add_argument('--save_epoch', default=2, type=int,help ='save feature from the model trained in x epoch, use the best model if x is -1')
 
   else:
     raise ValueError('Unknown script')

@@ -22,7 +22,7 @@ class SimpleHDF5Dataset:
 
 
 def init_loader(filename):
-  with h5py.File(filename, 'r') as f:
+  with h5py.File(filename, 'a') as f:
     fileset = SimpleHDF5Dataset(f)
 
   feats = fileset.all_feats_dset

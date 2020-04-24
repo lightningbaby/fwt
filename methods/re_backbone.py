@@ -199,7 +199,7 @@ class Conv2d_fw(nn.Conv2d): #used in MAML to forward input with fast weight
 
 class Conv2d_ft(nn.Conv2d): #used in MAML to forward input with fast weight
   def __init__(self, in_channels, out_channels, kernel_size, stride, padding=(1,0), bias = True):
-    super(Conv2d_ft, self).__init__(in_channels, out_channels, kernel_size, stride, padding=padding)
+    super(Conv2d_ft, self).__init__(in_channels, out_channels, kernel_size, stride, padding=padding,bias=bias)
     self.weight.fast = None
     if not self.bias is None:
       self.bias.fast = None
@@ -606,7 +606,7 @@ class TwoDBlock(nn.Module):
     # if the input number of channels is not equal to the output, then need a 1x1 convolution
     if indim!=outdim:
       if self.maml:
-        self.shortcut = Conv2d_ft(indim, outdim, 1, 2 if half_res else 1,padding=(0,0), bias=False)
+        self.shortcut = Conv2d_ft(indim, outdim, 1, 1,padding=(0,0), bias=False)
         self.BNshortcut = FeatureTransformation2d_ft(outdim)
       else:
         self.shortcut = nn.Conv2d(indim, outdim, 1,  1, padding=0, bias=False)
@@ -768,14 +768,15 @@ class ContextPurificationEncoder(nn.Module):
 
         self.embedding_dim = word_embedding_dim + pos_embedding_dim * 2
         self.conv = nn.Conv1d(self.embedding_dim, self.hidden_size, 3, padding=1)
-        self.pool = nn.MaxPool1d(max_length)
+        # self.pool = nn.MaxPool1d(max_length)
 
 
         if self.maml:
           conv1 = Conv1d_ft(self.max_length, self.hidden_size, 3, padding=1)
           bn1 = BatchNorm1d_ft(self.hidden_size)
         else:
-          conv1 = self.conv
+          conv1 = nn.Conv1d(self.max_length, self.hidden_size, 3, padding=1)
+
           bn1 = nn.BatchNorm1d(self.hidden_size)
 
         relu = nn.ReLU(inplace=True) if not leakyrelu else nn.LeakyReLU(0.2, inplace=True)
@@ -799,6 +800,7 @@ class ContextPurificationEncoder(nn.Module):
         if flatten:
           maxpool = nn.MaxPool1d(self.hidden_size)
           trunk2.append(maxpool)
+          trunk2.append(Flatten())
 
         self.trunk1 = nn.Sequential(*trunk1)
         self.trunk2 = nn.Sequential(*trunk2)
@@ -815,8 +817,8 @@ class ContextPurificationEncoder(nn.Module):
         x = self.cnn(x) # [50,230,128]
         x = x.transpose(1,2)
         x = self.trunk1(x) # [50,230,230]
-        x = self.trunk2(x)  # x[batch,230,1]
-        x = x.squeeze(2) # x[batch,230]
+        x = self.trunk2(x)  # x[batch,230,1] [50,230]
+        # x = x.squeeze(2) # x[batch,230]
 
         return x
 
@@ -841,7 +843,8 @@ class ContextPurification2DEncoder(nn.Module):
                  word_embedding_dim=50,
                  pos_embedding_dim=5, hidden_size=230, num_heads = 4,
                  flatten=True, leakyrelu=False):
-        nn.Module.__init__(self)
+        # nn.Module.__init__(self)
+        super(ContextPurification2DEncoder, self).__init__()
         self.grads = []
         self.fmaps = []
         self.final_feat_dim = 230
@@ -859,15 +862,15 @@ class ContextPurification2DEncoder(nn.Module):
         self.lstm = torch.nn.LSTM(feature_dim, feature_dim, bidirectional=True)
 
         self.embedding_dim = word_embedding_dim + pos_embedding_dim * 2
-        self.conv = nn.Conv2d(1, self.hidden_size*2, kernel_size=(3, self.embedding_dim), padding=(1, 0))
-        self.pool = nn.MaxPool1d(max_length)
+        # self.conv = nn.Conv2d(1, self.hidden_size, kernel_size=(3, self.embedding_dim), padding=(1, 0),bias=False)
+        # self.pool = nn.MaxPool1d(max_length)
 
 
         if self.maml:
-          conv1 = Conv2d_ft(1, self.hidden_size, kernel_size=(3,self.embedding_dim), stride=1, padding=(1,0))
+          conv1 = Conv2d_ft(1, self.hidden_size, kernel_size=(3,self.embedding_dim), stride=1, padding=(1,0),bias=False)
           bn1 = BatchNorm2d_ft(self.hidden_size)
         else:
-          conv1 = self.conv
+          conv1 = nn.Conv2d(1, self.hidden_size, kernel_size=(3, self.embedding_dim), padding=(1, 0),bias=False)
           bn1 = nn.BatchNorm2d(self.hidden_size)
 
         relu = nn.ReLU(inplace=True) if not leakyrelu else nn.LeakyReLU(0.2, inplace=True)
