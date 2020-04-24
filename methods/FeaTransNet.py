@@ -40,6 +40,10 @@ class FeaTransNet(nn.Module):
     re_backbone.ResNet.maml = True
     re_backbone.OneDBlock.maml = True
     re_backbone.ContextPurificationEncoder.maml = True
+    re_backbone.ContextPurification2DEncoder.maml = True
+    re_backbone.TwoDBlock.maml = True
+    re_backbone.FeatureTransformation2d_ft.feature_augment = True
+
 
     if params.method == 'protonet':
       model = protonet.ProtoNet( model_dict[params.model], tf_path=params.tf_dir, **train_few_shot_params)
@@ -78,13 +82,18 @@ class FeaTransNet(nn.Module):
   # split the parameters of feature-wise transforamtion layers and others
   def split_model_parameters(self):
     model_params = []
+    model_names = []
     ft_params = []
+    ft_names = []
+
     for n, p in self.model.named_parameters():
       n = n.split('.')
       if n[-1] == 'gamma' or n[-1] == 'beta':
         ft_params.append(p)
+        ft_names.append(n)
       else:
         model_params.append(p)
+        model_names.append(n)
     return model_params, ft_params
 
   # jotinly train the model and the feature transformation layers
@@ -94,7 +103,7 @@ class FeaTransNet(nn.Module):
     avg_ft_loss = 0.
 
     for i, ((x, _), (x_new, _)) in enumerate(zip(ps_loader, pu_loader)):
-
+     # x[5,10,512]
       # clear fast weight
       for weight in self.split_model_parameters()[0]:
         weight.fast = None

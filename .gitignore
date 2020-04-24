@@ -1,12 +1,11 @@
 test/*
 re_data/*
 glove/*
-.idea/
+.idea/*
 __pycache__/
 output/checkpoints/*
 train_smry.py
 README_copy.md
 tt.py
-
 
 

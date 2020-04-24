@@ -338,10 +338,10 @@ class SimpleBlock(nn.Module):
     for layer in self.parametrized_layers:
       init_layer(layer)
 
-  def forward(self, x):
-    out = self.C1(x)
-    out = self.BN1(out)
-    out = self.relu1(out)
+  def forward(self, x):# [105,64,56,56]
+    out = self.C1(x)# [105,64,56,56] # [105,128,28,28] [105,256,14,14] [105,512,7,7]
+    out = self.BN1(out)# [105,64,56,56]
+    out = self.relu1(out)# [105,64,56,56]
     out = self.C2(out)
     out = self.BN2(out)
     short_out = x if self.shortcut_type == 'identity' else self.BNshortcut(self.shortcut(x))
@@ -403,40 +403,44 @@ class ResNet(nn.Module):
     self.fmaps = []
     assert len(list_of_num_layers)==4, 'Can have only four stages'
     if self.maml:
-      conv1 = Conv2d_fw(3, 64, kernel_size=7, stride=2, padding=3, bias=False)
-      bn1 = BatchNorm2d_fw(64)
+      self.conv1 = Conv2d_fw(3, 64, kernel_size=7, stride=2, padding=3, bias=False)
+      self.bn1 = BatchNorm2d_fw(64)
     else:
-      conv1 = nn.Conv2d(3, 64, kernel_size=7, stride=2, padding=3, bias=False)
-      bn1 = nn.BatchNorm2d(64)
+      self.conv1 = nn.Conv2d(3, 64, kernel_size=7, stride=2, padding=3, bias=False)
+      self.bn1 = nn.BatchNorm2d(64)
 
-    relu = nn.ReLU(inplace=True) if not leakyrelu else nn.LeakyReLU(0.2, inplace=True)
-    pool1 = nn.MaxPool2d(kernel_size=3, stride=2, padding=1)
+    self.relu = nn.ReLU(inplace=True) if not leakyrelu else nn.LeakyReLU(0.2, inplace=True)
+    self.pool1 = nn.MaxPool2d(kernel_size=3, stride=2, padding=1)
 
-    init_layer(conv1)
-    init_layer(bn1)
+    init_layer(self.conv1)
+    init_layer(self.bn1)
 
-    trunk = [conv1, bn1, relu, pool1]
-
+    # trunk = [conv1, bn1, relu, pool1]
+    trunk2 = []
     indim = 64
     for i in range(4):
       for j in range(list_of_num_layers[i]):
         half_res = (i>=1) and (j==0)
         B = block(indim, list_of_out_dims[i], half_res, leaky=leakyrelu)
-        trunk.append(B)
+        trunk2.append(B)
         indim = list_of_out_dims[i]
 
     if flatten:
       avgpool = nn.AvgPool2d(7)
-      trunk.append(avgpool)
-      trunk.append(Flatten())
+      trunk2.append(avgpool)
+      trunk2.append(Flatten())
       self.final_feat_dim = indim
     else:
       self.final_feat_dim = [ indim, 7, 7]
 
-    self.trunk = nn.Sequential(*trunk)
+    self.trunk2 = nn.Sequential(*trunk2)
 
-  def forward(self,x):
-    out = self.trunk(x)
+  def forward(self,x): #[105,3,224,224]
+    x= self.conv1(x)#[105,64,112,112]
+    x=self.bn1(x)#[105,64,112,112]
+    x=self.relu(x)#[105,64,112,112]
+    x=self.pool1(x)#[105,64,56,56]
+    out = self.trunk2(x)#[105,64,56,56] [105,512]
     return out
 
 # --- Conv networks ---

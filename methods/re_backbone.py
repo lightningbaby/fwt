@@ -197,6 +197,26 @@ class Conv2d_fw(nn.Conv2d): #used in MAML to forward input with fast weight
         out = super(Conv2d_fw, self).forward(x)
     return out
 
+class Conv2d_ft(nn.Conv2d): #used in MAML to forward input with fast weight
+  def __init__(self, in_channels, out_channels, kernel_size, stride, padding=(1,0), bias = True):
+    super(Conv2d_ft, self).__init__(in_channels, out_channels, kernel_size, stride, padding=padding)
+    self.weight.fast = None
+    if not self.bias is None:
+      self.bias.fast = None
+
+  def forward(self, x):
+    if self.bias is None:
+      if self.weight.fast is not None:
+        out = F.conv2d(x, self.weight.fast, None,  padding=self.padding)
+      else:
+        out = super(Conv2d_ft, self).forward(x)
+    else:
+      if self.weight.fast is not None and self.bias.fast is not None:
+        out = F.conv2d(x, self.weight.fast, self.bias.fast,  padding=self.padding)
+      else:
+        out = super(Conv2d_ft, self).forward(x)
+    return out
+
 # --- Conv1d module ---
 class Conv1d_ft(nn.Conv1d): #used in MAML to forward input with fast weight
   def __init__(self, in_channels, out_channels, kernel_size, padding=1):
@@ -261,6 +281,44 @@ class FeatureWiseTransformation2d_fw(nn.BatchNorm2d):
       out = gamma*out + beta
     return out
 
+# --- feature transformation layer ---
+class FeatureTransformation2d_ft(nn.BatchNorm2d):
+  feature_augment = False
+  def __init__(self, num_features, momentum=0.1, track_running_stats=True):
+    super(FeatureTransformation2d_ft, self).__init__(num_features, momentum=momentum, track_running_stats=track_running_stats)
+    self.weight.fast = None
+    self.bias.fast = None
+    if self.track_running_stats:
+      self.register_buffer('running_mean', torch.zeros(num_features))
+      self.register_buffer('running_var', torch.zeros(num_features))
+    if self.feature_augment: # initialize {gamma, beta} with {0.3, 0.5}
+      self.gamma = torch.nn.Parameter(torch.ones(1, num_features, 1, 1)*0.3)
+      self.beta  = torch.nn.Parameter(torch.ones(1, num_features, 1, 1)*0.5)
+    self.reset_parameters()
+
+  def reset_running_stats(self):
+    if self.track_running_stats:
+      self.running_mean.zero_()
+      self.running_var.fill_(1)
+
+  def forward(self, x, step=0):
+    if self.weight.fast is not None and self.bias.fast is not None:
+      weight = self.weight.fast
+      bias = self.bias.fast
+    else:
+      weight = self.weight
+      bias = self.bias
+    if self.track_running_stats:
+      out = F.batch_norm(x, self.running_mean, self.running_var, weight, bias, training=self.training, momentum=self.momentum)
+    else:
+      out = F.batch_norm(x, torch.zeros_like(x), torch.ones_like(x), weight, bias, training=True, momentum=1)
+
+    # apply feature transformation
+    if self.feature_augment and self.training:
+      gamma = (1 + torch.randn(1, self.num_features, 1, 1, dtype=self.gamma.dtype, device=self.gamma.device)*softplus(self.gamma)).expand_as(out)
+      beta = (torch.randn(1, self.num_features, 1, 1, dtype=self.beta.dtype, device=self.beta.device)*softplus(self.beta)).expand_as(out)
+      out = gamma*out + beta
+    return out
 
 # --- feature transformation layer ---
 class FeatureTransformation1d_ft(nn.BatchNorm1d):
@@ -329,6 +387,35 @@ class BatchNorm2d_fw(nn.BatchNorm2d):
     else:
       out = F.batch_norm(x, torch.zeros(x.size(1), dtype=x.dtype, device=x.device), torch.ones(x.size(1), dtype=x.dtype, device=x.device), weight, bias, training=True, momentum=1)
     return out
+
+class BatchNorm2d_ft(nn.BatchNorm2d):
+  def __init__(self, num_features, momentum=0.1, track_running_stats=True):
+    super(BatchNorm2d_ft, self).__init__(num_features, momentum=momentum, track_running_stats=track_running_stats)
+    self.weight.fast = None
+    self.bias.fast = None
+    if self.track_running_stats:
+      self.register_buffer('running_mean', torch.zeros(num_features))
+      self.register_buffer('running_var', torch.zeros(num_features))
+    self.reset_parameters()
+
+  def reset_running_stats(self):
+    if self.track_running_stats:
+      self.running_mean.zero_()
+      self.running_var.fill_(1)
+
+  def forward(self, x, step=0):
+    if self.weight.fast is not None and self.bias.fast is not None:
+      weight = self.weight.fast
+      bias = self.bias.fast
+    else:
+      weight = self.weight
+      bias = self.bias
+    if self.track_running_stats:
+      out = F.batch_norm(x, self.running_mean, self.running_var, weight, bias, training=self.training, momentum=self.momentum)
+    else:
+      out = F.batch_norm(x, torch.zeros(x.size(1), dtype=x.dtype, device=x.device), torch.ones(x.size(1), dtype=x.dtype, device=x.device), weight, bias, training=True, momentum=1)
+    return out
+
 
 # --- BatchNorm1d ---
 class BatchNorm1d_ft(nn.BatchNorm1d):
@@ -491,6 +578,59 @@ class OneDBlock(nn.Module):
     # out = out + short_out
     out = self.relu2(out)
     return out
+
+# --- 2-d Block ---
+class TwoDBlock(nn.Module):
+  maml = False
+  def __init__(self, indim, outdim, half_res, leaky=False):
+    super(TwoDBlock, self).__init__()
+    self.indim = indim
+    self.outdim = outdim
+    if self.maml:
+      self.C1 = Conv2d_ft(indim, outdim, kernel_size=(3,1), stride=1, padding=(1,0), bias=False)
+      self.BN1 = BatchNorm2d_ft(outdim)
+      self.C2 = Conv2d_ft(outdim, outdim,kernel_size=(3,1), stride=1,padding=(1,0),bias=False)
+      self.BN2 = FeatureTransformation2d_ft(outdim) # feature-wise transformation at the end of each residual block
+    else:
+      self.C1 = nn.Conv2d(indim, outdim, kernel_size=(3,1),stride=1, padding=(1,0), bias=False)
+      self.BN1 = nn.BatchNorm2d(outdim)
+      self.C2 = nn.Conv2d(outdim, outdim,kernel_size=(3,1), stride=1,padding=(1,0),bias=False)
+      self.BN2 = nn.BatchNorm2d(outdim)
+    self.relu1 = nn.ReLU(inplace=True) if not leaky else nn.LeakyReLU(0.2, inplace=True)
+    self.relu2 = nn.ReLU(inplace=True) if not leaky else nn.LeakyReLU(0.2, inplace=True)
+
+    self.parametrized_layers = [self.C1, self.C2, self.BN1, self.BN2]
+
+    self.half_res = half_res
+
+    # if the input number of channels is not equal to the output, then need a 1x1 convolution
+    if indim!=outdim:
+      if self.maml:
+        self.shortcut = Conv2d_ft(indim, outdim, 1, 2 if half_res else 1,padding=(0,0), bias=False)
+        self.BNshortcut = FeatureTransformation2d_ft(outdim)
+      else:
+        self.shortcut = nn.Conv2d(indim, outdim, 1,  1, padding=0, bias=False)
+        self.BNshortcut = nn.BatchNorm2d(outdim)
+
+      self.parametrized_layers.append(self.shortcut)
+      self.parametrized_layers.append(self.BNshortcut)
+      self.shortcut_type = '1x1'
+    else:
+      self.shortcut_type = 'identity'
+
+    for layer in self.parametrized_layers:
+      init_layer(layer)
+
+  def forward(self, x): # [50,230,128,1]
+    out = self.C1(x)
+    out = self.BN1(out)
+    out = self.relu1(out)
+    out = self.C2(out)
+    out = self.BN2(out)
+    short_out = x if self.shortcut_type == 'identity' else self.BNshortcut(self.shortcut(x))
+    out = out + short_out
+    out = self.relu2(out)
+    return out
 # --- ConvNet module ---
 class ConvNet(nn.Module):
   def __init__(self, depth, flatten = True):
@@ -508,7 +648,7 @@ class ConvNet(nn.Module):
       trunk.append(Flatten())
 
     self.trunk = nn.Sequential(*trunk)
-    self.final_feat_dim = 1600
+    self.final_feat_dim = 230
 
   def forward(self,x):
     out = self.trunk(x)
@@ -664,7 +804,7 @@ class ContextPurificationEncoder(nn.Module):
         self.trunk2 = nn.Sequential(*trunk2)
 
 
-    def forward(self,inputs):
+    def forward(self,inputs): # [50,512]
         # embedding
         x = self.embedding(inputs)  # x [50,128,60] [batch，128维，50+5+5（word 50维，每个pos5维）]
 
@@ -695,6 +835,99 @@ class ContextPurificationEncoder(nn.Module):
         # return x.squeeze(2) # n x hidden_size
         return x # n x hidden_size x 1
 
+class ContextPurification2DEncoder(nn.Module):
+    maml = False
+    def __init__(self, block, word_vec_mat,  list_of_num_layers, list_of_out_dims,max_length,
+                 word_embedding_dim=50,
+                 pos_embedding_dim=5, hidden_size=230, num_heads = 4,
+                 flatten=True, leakyrelu=False):
+        nn.Module.__init__(self)
+        self.grads = []
+        self.fmaps = []
+        self.final_feat_dim = 230
+        self.hidden_size = hidden_size
+        self.max_length = max_length
+        self.embedding = encoder.embedding.Embedding(word_vec_mat, max_length,
+                                                     word_embedding_dim, pos_embedding_dim)
+
+        seq_len, feature_dim, head_num = max_length, word_embedding_dim + 2 * pos_embedding_dim, num_heads
+        weights = np.random.standard_normal((feature_dim, feature_dim * 4))
+        bias = np.random.standard_normal((feature_dim * 4,))
+
+        self.attention = Attention.get_torch_layer_with_weights(feature_dim, head_num, weights, bias)
+        self.maxpool = nn.MaxPool1d(2, stride=2)
+        self.lstm = torch.nn.LSTM(feature_dim, feature_dim, bidirectional=True)
+
+        self.embedding_dim = word_embedding_dim + pos_embedding_dim * 2
+        self.conv = nn.Conv2d(1, self.hidden_size*2, kernel_size=(3, self.embedding_dim), padding=(1, 0))
+        self.pool = nn.MaxPool1d(max_length)
+
+
+        if self.maml:
+          conv1 = Conv2d_ft(1, self.hidden_size, kernel_size=(3,self.embedding_dim), stride=1, padding=(1,0))
+          bn1 = BatchNorm2d_ft(self.hidden_size)
+        else:
+          conv1 = self.conv
+          bn1 = nn.BatchNorm2d(self.hidden_size)
+
+        relu = nn.ReLU(inplace=True) if not leakyrelu else nn.LeakyReLU(0.2, inplace=True)
+        # pool1 = nn.MaxPool1d(3)
+
+        init_layer(conv1)
+        init_layer(bn1)
+
+        trunk1 = [conv1, bn1, relu]
+        trunk2 = []
+
+        indim = 230
+
+        for i in range(3):
+          for j in range(list_of_num_layers[i]):
+            half_res = (i >= 1) and (j == 0)
+            B = block(indim, list_of_out_dims[i], half_res, leaky=leakyrelu)
+            trunk2.append(B)
+            indim = list_of_out_dims[i]
+
+        if flatten:
+          avgpool = nn.AvgPool2d((self.max_length,1))
+          trunk2.append(avgpool)
+          trunk2.append(Flatten())
+
+        self.trunk1 = nn.Sequential(*trunk1)
+        self.trunk2 = nn.Sequential(*trunk2)
+
+
+    def forward(self,inputs):
+        # embedding inputs [50,512]
+        x = self.embedding(inputs)  # x [50,128,60] [batch，128维，50+5+5（word 50维，每个pos5维）]
+
+        # lstm & multi-head self-attention
+        x = self.MHSFATT(x) # [50,128,60]
+
+        # cnn
+        # x = self.cnn(x) # [50,230,128]
+        # x = x.transpose(1,2)
+        x = x.unsqueeze(1)# [50,1,128,60]
+        x = self.trunk1(x) # [50,230,128,1]
+        x = self.trunk2(x)  #
+        # x = x.squeeze(2) #
+
+        return x
+
+    def MHSFATT(self, x):
+        x = x.transpose(0, 1)
+        x, hidden = self.lstm(x)
+        x = x.transpose(0, 1).double()
+        x = self.maxpool(x)
+        x = self.attention(x, x, x).float()
+        return x
+
+    def cnn(self, inputs):
+        x = self.conv(inputs.transpose(1, 2)) #[50,230,128]
+        x = F.relu(x)
+        # x = self.pool(x) #[50,230,1]
+        # return x.squeeze(2) # n x hidden_size
+        return x # n x hidden_size x 1
 
 class CNNSentenceEncoder(nn.Module):
 
@@ -760,6 +993,19 @@ def ContextCNN(flatten = True, leakyrelu=False): # 如何使用flatten
                                       flatten = True, leakyrelu=False)
 
 
+def Context2DCNN(flatten=True, leakyrelu=False):  # 如何使用flatten
+  try:
+    glove_mat = np.load('./glove/glove_mat.npy')
+    # glove_word2id = json.load(open('./pretrain/glove/glove_word2id.json'))
+  except:
+    raise Exception("Cannot find glove files. Run glove/download_glove.sh to download glove files.")
+
+  return ContextPurification2DEncoder(TwoDBlock, glove_mat, [1, 1, 1, 1], [460, 460, 460, 230], max_length=128,
+                                    word_embedding_dim=50,
+                                    pos_embedding_dim=5, hidden_size=230, num_heads=4,
+                                    flatten=True, leakyrelu=False)
+
+
 def OneCNN(flatten=True, leakyrelu=False):  # 如何使用flatten
   try:
     glove_mat = np.load('./glove/glove_mat.npy')
@@ -776,5 +1022,5 @@ model_dict = dict(Conv4 = Conv4,
                   ResNet10 = ResNet10,
                   ResNet18 = ResNet18,
                   ResNet34 = ResNet34,
-                  cnn = ContextCNN)
+                  cnn = Context2DCNN)
 #if __name__=='__main__':

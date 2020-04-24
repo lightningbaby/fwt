@@ -60,13 +60,17 @@ class LFTNet(nn.Module):
   # split the parameters of feature-wise transforamtion layers and others
   def split_model_parameters(self):
     model_params = []
+    model_names = []
     ft_params = []
+    ft_names = []
     for n, p in self.model.named_parameters():
       n = n.split('.')
       if n[-1] == 'gamma' or n[-1] == 'beta':
         ft_params.append(p)
+        ft_names.append(n)
       else:
         model_params.append(p)
+        model_names.append(n)
     return model_params, ft_params
 
   # jotinly train the model and the feature-wise transformation layers
