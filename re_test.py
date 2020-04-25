@@ -30,7 +30,7 @@ import numpy as np
 
 # extract and save image features
 def save_features(model, data_loader, featurefile):
-  f = h5py.File(featurefile, 'a')
+  f = h5py.File(featurefile, 'w')
   max_count = len(data_loader)*data_loader.batch_size
   all_labels = f.create_dataset('all_labels',(max_count,), dtype='i')
   all_feats=None

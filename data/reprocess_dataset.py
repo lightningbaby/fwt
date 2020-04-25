@@ -14,11 +14,19 @@
 
 import json
 import os
+import argparse
+
+parser = argparse.ArgumentParser(description='few-shot script %s')
+parser.add_argument('--dataset', default='train_wiki',help='train_wiki/val_pubmed')
+# parser.add_argument('--outpath', default='fwt',help='wiki/nyt/semeval/pubmed')
+
+params=parser.parse_args()
 root='re_data'
-in_file_name='sub_val_nyt.json' # 需要填写
+in_file_name=str(params.dataset)+'.json' # 需要填写
 out_file_name='fwt_'+in_file_name
 in_path=os.path.join(root,in_file_name)
 out_path=os.path.join(root,out_file_name)
+
 
 data=json.load(open(in_path))
 all_data=[]
