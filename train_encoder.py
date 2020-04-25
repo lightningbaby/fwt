@@ -87,7 +87,10 @@ if __name__=='__main__':
   if params.dataset == 'multi':
     print('  train with multiple seen domains (unseen domain: {})'.format(params.testset))
     # datasets = ['miniImagenet', 'cars', 'places', 'cub', 'plantae']
-    datasets = ['fwt_sub_test_wiki', 'fwt_sub_val_nyt', 'fwt_sub_val_wiki']
+    datasets = ['fwt_train_wiki', 'fwt_val_semeval', 'fwt_val_nyt']
+    datasets2 = ['fwt_train_wiki', 'fwt_val_semeval', 'fwt_val_nyt','fwt_sub_val_pubmed']
+    if params.pubmed:
+      datasets=datasets2
     datasets.remove(params.testset)
     ### 需要修改文件名
     base_file = [os.path.join(params.data_dir, (params.train + '.json')) for dataset in datasets] # 多个域的训练集训练

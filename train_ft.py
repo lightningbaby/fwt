@@ -92,9 +92,9 @@ if __name__=='__main__':
   print('\n--- prepare dataloader ---')
   print('  train with multiple seen domains (unseen domain: {})'.format(params.testset))
   # datasets = ['miniImagenet', 'cars', 'places', 'cub', 'plantae']
-  datasets = ['fwt_sub_test_wiki', 'fwt_sub_val_nyt', 'fwt_sub_val_wiki']
+  datasets = ['fwt_train_wiki', 'fwt_val_semeval', 'fwt_val_nyt']
   datasets.remove(params.testset)
-  val_file = os.path.join(params.data_dir, ('fwt_sub_test_wiki' + '.json'))
+  val_file = os.path.join(params.data_dir, ('fwt_sub_val_pubmed' + '.json'))
 
   # model
   print('\n--- build FeatureTransformationNet model ---')
