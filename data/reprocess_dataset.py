@@ -21,7 +21,7 @@ parser.add_argument('--dataset', default='train_wiki',help='train_wiki/val_pubme
 # parser.add_argument('--outpath', default='fwt',help='wiki/nyt/semeval/pubmed')
 
 params=parser.parse_args()
-root='re_data'
+root='../re_data'
 in_file_name=str(params.dataset)+'.json' # 需要填写
 out_file_name='fwt_'+in_file_name
 in_path=os.path.join(root,in_file_name)
