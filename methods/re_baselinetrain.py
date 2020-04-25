@@ -57,19 +57,19 @@ class BaselineTrain(nn.Module):
     avg_loss=0
 
     for i, (x,y) in enumerate(train_loader):# x[16,3,224,224] [batch,channel,h,w], y[16]
-      if i<3 :
-        optimizer.zero_grad() # x[batch,512],y[4]
-        loss = self.forward_loss(x, y) #resnet
-        loss.backward()
-        optimizer.step()
+      # if i<3 :
+      optimizer.zero_grad() # x[batch,512],y[4]
+      loss = self.forward_loss(x, y) #resnet
+      loss.backward()
+      optimizer.step()
 
-        avg_loss = avg_loss+loss.item()#data[0]
+      avg_loss = avg_loss+loss.item()#data[0]
 
-        if (i + 1) % print_freq==0:
-          print('Epoch {:d} | Batch {:d}/{:d} | Loss {:f}'.format(epoch, i + 1, len(train_loader), avg_loss/float(i+1)  ))
-        if (total_it + 1) % 10 == 0:
-          self.tf_writer.add_scalar('loss', loss.item(), total_it + 1)
-        total_it += 1
+      if (i + 1) % print_freq==0:
+        print('Epoch {:d} | Batch {:d}/{:d} | Loss {:f}'.format(epoch, i + 1, len(train_loader), avg_loss/float(i+1)  ))
+      if (total_it + 1) % 10 == 0:
+        self.tf_writer.add_scalar('loss', loss.item(), total_it + 1)
+      total_it += 1
     return total_it
 
   def test_loop(self, val_loader):

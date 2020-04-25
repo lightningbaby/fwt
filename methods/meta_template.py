@@ -54,21 +54,21 @@ class MetaTemplate(nn.Module):
     print_freq = len(train_loader) // 10
     avg_loss=0
     for i, (x,_ ) in enumerate(train_loader):  # x[5,21,3,224,224] _[5,21] ,n_support 5
-      if i<3:
-        self.n_query = x.size(1) - self.n_support # 16
-        if self.change_way:
-          self.n_way  = x.size(0)
-        optimizer.zero_grad()
-        _, loss = self.set_forward_loss(x) #  matchingnet predicts _ [80,5],first resnet extract features,then FCE ,nllloss
-        loss.backward() # protonet _[80,5]
-        optimizer.step()
-        avg_loss = avg_loss+loss.item()
+      # if i<3:
+      self.n_query = x.size(1) - self.n_support # 16
+      if self.change_way:
+        self.n_way  = x.size(0)
+      optimizer.zero_grad()
+      _, loss = self.set_forward_loss(x) #  matchingnet predicts _ [80,5],first resnet extract features,then FCE ,nllloss
+      loss.backward() # protonet _[80,5]
+      optimizer.step()
+      avg_loss = avg_loss+loss.item()
 
-        if (i + 1) % print_freq==0:
-          print('Epoch {:d} | Batch {:d}/{:d} | Loss {:f}'.format(epoch, i + 1, len(train_loader), avg_loss/float(i+1)))
-        if (total_it + 1) % 10 == 0 and self.tf_writer is not None:
-          self.tf_writer.add_scalar(self.method + '/query_loss', loss.item(), total_it + 1)
-        total_it += 1
+      if (i + 1) % print_freq==0:
+        print('Epoch {:d} | Batch {:d}/{:d} | Loss {:f}'.format(epoch, i + 1, len(train_loader), avg_loss/float(i+1)))
+      if (total_it + 1) % 10 == 0 and self.tf_writer is not None:
+        self.tf_writer.add_scalar(self.method + '/query_loss', loss.item(), total_it + 1)
+      total_it += 1
     return total_it
 
   def test_loop(self, test_loader, record = None):
