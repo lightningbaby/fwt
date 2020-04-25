@@ -116,10 +116,16 @@ class FeaTransNet(nn.Module):
       _, model_loss = self.model.set_forward_loss(x)
 
       # update model parameters according to model_loss
-      # i = 0
+      # i = -1
       # for n, p in self.model.named_parameters():
       #   i = i + 1
-      #   print(str(i) + n)
+      #   n = n.split('.')
+      #   if n[-1] == 'gamma' or n[-1] == 'beta':
+      #     continue
+      #   else:
+      #     print(str(i))
+      #     print( n)
+
       meta_grad = torch.autograd.grad(model_loss, self.split_model_parameters()[0], create_graph=True)
       for k, weight in enumerate(self.split_model_parameters()[0]):
         weight.fast = weight - self.model_optim.param_groups[0]['lr']*meta_grad[k]
@@ -150,6 +156,7 @@ class FeaTransNet(nn.Module):
       if (total_it + 1) % 10 == 0 and self.tf_writer is not None:
         self.tf_writer.add_scalar('LFTNet/model_loss', model_loss.item(), total_it + 1)
         self.tf_writer.add_scalar('LFTNet/ft_loss', ft_loss.item(), total_it + 1)
+        return total_it  # for test
       total_it += 1
 
     return total_it

@@ -49,7 +49,7 @@ def save_features(model, data_loader, featurefile):
 
   count_var = f.create_dataset('count', (1,), dtype='i')
   count_var[0] = count
-  f.close()
+  return f
 
 # evaluate using features
 def feature_evaluation(cl_data_file, model, n_way = 5, n_support = 5, n_query = 15):
@@ -132,7 +132,10 @@ if __name__ == '__main__':
   if not os.path.isdir(dirname):
     os.makedirs(dirname)
   # feature_path=os.path.join(split + ".hdf5")
-  save_features(model, data_loader, featurefile)
+  f = save_features(model, data_loader, featurefile)
+
+
+  #f.close()
 
   print('\nStage 2: evaluate')
   acc_all = []
@@ -184,7 +187,7 @@ if __name__ == '__main__':
 
   # load feature file
   print('  load saved feature file')
-  cl_data_file = feat_loader.init_loader(featurefile)
+  cl_data_file = feat_loader.init_loader(f)
 
   # start evaluate
   print('  evaluate')

@@ -49,6 +49,7 @@ class BaselineTrain(nn.Module):
     scores = self.forward(x) # x[16,3,224,224], y[16],scores [16,200]
     if torch.cuda.is_available():
       y = y.cuda()
+    scores = scores.squeeze(1)
     return self.loss_fn(scores, y ) # cross entropy
 
   def train_loop(self, epoch, train_loader, optimizer, total_it):

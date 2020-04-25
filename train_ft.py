@@ -65,6 +65,9 @@ def train(base_datamgr, base_set, val_loader, model, start_epoch, stop_epoch, pa
       outfile = os.path.join(params.checkpoint_dir, '{:d}.tar'.format(epoch + 1))
       model.save(outfile, epoch)
 
+  outfile = os.path.join(params.checkpoint_dir, '{:d}.tar'.format(epoch + 1))
+  model.save(outfile, epoch)
+
   return
 
 

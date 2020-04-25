@@ -21,10 +21,10 @@ class SimpleHDF5Dataset:
     return self.total
 
 
-def init_loader(filename):
-  with h5py.File(filename, 'a') as f:
-    fileset = SimpleHDF5Dataset(f)
-
+def init_loader(f):
+  #with h5py.File(filename, 'a') as f:
+  #  fileset = SimpleHDF5Dataset(f)
+  fileset = SimpleHDF5Dataset(f)
   feats = fileset.all_feats_dset
   labels = fileset.all_labels
   while np.sum(feats[-1]) == 0:
