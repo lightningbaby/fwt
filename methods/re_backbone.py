@@ -874,7 +874,7 @@ class ContextPurification2DEncoder(nn.Module):
           bn1 = nn.BatchNorm2d(self.hidden_size)
 
         relu = nn.ReLU(inplace=True) if not leakyrelu else nn.LeakyReLU(0.2, inplace=True)
-        # pool1 = nn.MaxPool1d(3)
+        self.final_pool = nn.AvgPool1d(2)
 
         init_layer(conv1)
         init_layer(bn1)
@@ -895,6 +895,7 @@ class ContextPurification2DEncoder(nn.Module):
           avgpool = nn.AvgPool2d((self.max_length,1))
           trunk2.append(avgpool)
           trunk2.append(Flatten())
+          # trunk2.append(nn.AvgPool1d())
 
         self.trunk1 = nn.Sequential(*trunk1)
         self.trunk2 = nn.Sequential(*trunk2)
@@ -912,8 +913,9 @@ class ContextPurification2DEncoder(nn.Module):
         # x = x.transpose(1,2)
         x = x.unsqueeze(1)# [50,1,128,60]
         x = self.trunk1(x) # [50,230,128,1]
-        x = self.trunk2(x)  #
-        # x = x.squeeze(2) #
+        x = self.trunk2(x)  #[50,460]
+        x = x.unsqueeze(1) #[50,1,460]
+        x = self.final_pool(x)#[50,230]
 
         return x
 
