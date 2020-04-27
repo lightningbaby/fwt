@@ -23,6 +23,8 @@ class ProtoNet(MetaTemplate):
       self.linear2 = nn.Linear(hidden_size, 1, True)
     self.atten_or_not = proto_attention
     self.distance = distance
+    self.weight = nn.Parameter(torch.ones(1,dtype=float))
+    a = 10
   def reset_modules(self):
     return
 
@@ -45,21 +47,21 @@ class ProtoNet(MetaTemplate):
     support_differ = abs((z_support - class_common.unsqueeze(1)))  # (N, K, D)
     class_differ = torch.mean(support_differ, 1)  # (N, D)
     class_differ = class_differ.mean(1) # (N)
-    class_weight = F.softmax(class_differ / 15, dim=0) * self.n_way
-    #class_differ = class_differ * differ_gain
-    #class_differ = class_differ.mean(2)  # (B, N)  # with class_differ increase, the class may have less confidence
-    z_proto = z_proto.transpose(0, 1) * class_weight  #(D,N)
-    z_proto = z_proto.transpose(0, 1)  # (N, D)
+    class_weight_MLP = F.softmax(class_differ / 4, dim=0) * self.n_way
+    class_weight = F.softmax((1 - F.softmax(class_differ /4, dim=0)),dim=0) * self.n_way
+
+
     z_proto     = z_support.view(self.n_way, self.n_support, -1 ).mean(1) #the shape of z is [n_data, n_dim] [5,512]
     z_query     = z_query.contiguous().view(self.n_way* self.n_query, -1 ) #[80,512]
 
     if self.distance == 'Euclidean':
       dists = euclidean_dist(z_query, z_proto) #[80,5]
+      dists = dists * class_weight
       scores = -dists
       return scores
     else:
       scores = self.get_distance_by_MLP(z_proto,z_query)
-      return scores
+      return scores * class_weight_MLP
   def get_distance_by_MLP(self,proto,query):   # concat proto_vector with query_vector
     sum = torch.cat([query[0], proto[0]], 0).unsqueeze(0)
     for tmp in query:
