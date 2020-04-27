@@ -132,6 +132,7 @@ if __name__=='__main__':
 
     if params.method == 'protonet':
       model           = ProtoNet( model_dict[params.model], tf_path=params.tf_dir, **train_few_shot_params,proto_attention=params.proto_attention, distance=params.proto_distance)
+      #model = ProtoNet(model_dict[params.model], tf_path=params.tf_dir, **train_few_shot_params)
     elif params.method == 'gnnnet':
       model           = GnnNet( model_dict[params.model], tf_path=params.tf_dir, **train_few_shot_params)
     elif params.method == 'matchingnet':
