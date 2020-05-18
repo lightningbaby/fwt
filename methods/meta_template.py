@@ -71,25 +71,60 @@ class MetaTemplate(nn.Module):
       total_it += 1
     return total_it
 
+#  def test_loop(self, test_loader, record = None):
+#    loss = 0.
+#    count = 0
+#    acc_all = []
+#
+#    iter_num = len(test_loader)
+#    for i, (x,_) in enumerate(test_loader):
+#      self.n_query = x.size(1) - self.n_support
+#      if self.change_way:
+#        self.n_way  = x.size(0)
+#      correct_this, count_this, loss_this = self.correct(x)
+#      acc_all.append(correct_this/ count_this*100  )
+#      loss += loss_this
+#      count += count_this
+#
+#    acc_all  = np.asarray(acc_all)
+#    acc_mean = np.mean(acc_all)
+#    acc_std  = np.std(acc_all)
+#    print('--- %d Loss = %.6f ---' %(iter_num,  loss/count))
+#    print('--- %d Test Acc = %4.2f%% +- %4.2f%% ---' %(iter_num,  acc_mean, 1.96* acc_std/np.sqrt(iter_num)))
+#
+#    return acc_mean
+
   def test_loop(self, test_loader, record = None):
     loss = 0.
     count = 0
-    acc_all = []
+   # acc_all = []
+    acc_final = []
 
-    iter_num = len(test_loader)
-    for i, (x,_) in enumerate(test_loader):
-      self.n_query = x.size(1) - self.n_support
-      if self.change_way:
-        self.n_way  = x.size(0)
-      correct_this, count_this, loss_this = self.correct(x)
-      acc_all.append(correct_this/ count_this*100  )
-      loss += loss_this
-      count += count_this
+    iter_num = len(test_loader)//10
+    print('iter num:%d/n',iter_num)
 
-    acc_all  = np.asarray(acc_all)
-    acc_mean = np.mean(acc_all)
-    acc_std  = np.std(acc_all)
+    for it in range(iter_num):
+      for i, (x,_) in enumerate(test_loader):# [5，10，512] ，[5，10] 5个类，每个类10个样本
+        acc_all = []
+        self.n_query = x.size(1) - self.n_support
+        if self.change_way:
+          self.n_way  = x.size(0)
+        correct_this, count_this, loss_this = self.correct(x)
+        acc_all.append(correct_this/ count_this*100  )
+        loss += loss_this
+        count += count_this
+
+      acc_all  = np.asarray(acc_all)
+      acc_mean = np.mean(acc_all)
+      acc_std  = np.std(acc_all)
+
+      acc_final.append(acc_mean)
+
+    acc_final=np.asarray(acc_final)
+    acc_mean_final=np.mean(acc_final)
+    acc_std_final=np.std(acc_final)
+
     print('--- %d Loss = %.6f ---' %(iter_num,  loss/count))
-    print('--- %d Test Acc = %4.2f%% +- %4.2f%% ---' %(iter_num,  acc_mean, 1.96* acc_std/np.sqrt(iter_num)))
+    print('--- %d Test Acc = %4.2f%% +- %4.2f%% ---' %(iter_num,  acc_mean_final, 1.96* acc_std_final/np.sqrt(iter_num)))
 
-    return acc_mean
+    return acc_mean_final

@@ -1,5 +1,5 @@
 #!/usr/bin/env python
-# -*- encoding: utf-8 -*-
+	# -*- encoding: utf-8 -*-
 '''
 @File    :   train_encoder.py    
 @Contact :   lightningtyb@163.com
@@ -31,7 +31,7 @@ from re_args import parse_args, get_resume_file, load_warmup_state
 def train(base_loader, val_loader, model, start_epoch, stop_epoch, params):
 
   # get optimizer and checkpoint path
-  optimizer = torch.optim.Adam(model.parameters())
+  optimizer = torch.optim.Adam(model.parameters(),lr=1e-4)
   if not os.path.isdir(params.checkpoint_dir):
     os.makedirs(params.checkpoint_dir)
 
@@ -57,7 +57,7 @@ def train(base_loader, val_loader, model, start_epoch, stop_epoch, params):
     if ((epoch + 1) % params.save_freq==0) or (epoch==stop_epoch-1):
       outfile = os.path.join(params.checkpoint_dir, '{:d}.tar'.format(epoch))
       torch.save({'epoch':epoch, 'state':model.state_dict()}, outfile)
-
+#    print(model.state_dict().keys())
   return model
 # --- main function ---
 if __name__=='__main__':
@@ -88,9 +88,9 @@ if __name__=='__main__':
     print('  train with multiple seen domains (unseen domain: {})'.format(params.testset))
     # datasets = ['miniImagenet', 'cars', 'places', 'cub', 'plantae']
     datasets = ['fwt_train_wiki', 'fwt_val_semeval', 'fwt_val_nyt']
-    datasets2 = ['fwt_train_wiki', 'fwt_val_semeval', 'fwt_val_nyt','fwt_sub_val_pubmed']
-    if params.pubmed:
-      datasets=datasets2
+    #datasets2 = ['fwt_train_wiki', 'fwt_val_semeval', 'fwt_val_nyt','fwt_sub_val_pubmed']
+    #if params.pubmed:
+    #  datasets=datasets2
     datasets.remove(params.testset)
     ### 需要修改文件名
     base_file = [os.path.join(params.data_dir, (params.train + '.json')) for dataset in datasets] # 多个域的训练集训练
@@ -129,9 +129,13 @@ if __name__=='__main__':
     test_few_shot_params     = dict(n_way = params.test_n_way, n_support = params.n_shot)  # （5，5）
     val_datamgr             = SetREDataManager(max_length=params.max_length, n_query=params.n_query, **test_few_shot_params)
     val_loader              = val_datamgr.get_data_loader(val_file,params.max_length)
+ #   print('  proto_attention {} with feature encoder'.format(params.proto_attention))
 
     if params.method == 'protonet':
-      model           = ProtoNet( model_dict[params.model], tf_path=params.tf_dir, **train_few_shot_params,proto_attention=params.proto_attention, distance=params.proto_distance)
+      #model           = ProtoNet( model_dict[params.model], tf_path=params.tf_dir, **train_few_shot_params)
+      #model           = ProtoNet( model_dict[params.model], tf_path=params.tf_dir, **train_few_shot_params,proto_attention=params.proto_attention, distance=params.proto_distance)
+      model           = ProtoNet( model_dict[params.model], tf_path=params.tf_dir, **train_few_shot_params,proto_attention=params.proto_attention, distance=params.proto_distance, common = params.proto_common)
+     # print(model)
     elif params.method == 'gnnnet':
       model           = GnnNet( model_dict[params.model], tf_path=params.tf_dir, **train_few_shot_params)
     elif params.method == 'matchingnet':
@@ -149,6 +153,7 @@ if __name__=='__main__':
     raise ValueError('Unknown method')
   if torch.cuda.is_available():
     model = model.cuda()
+  
 
   # load model
   start_epoch = params.start_epoch #0

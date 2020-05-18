@@ -253,8 +253,8 @@ class FeatureWiseTransformation2d_fw(nn.BatchNorm2d):
       self.register_buffer('running_mean', torch.zeros(num_features))
       self.register_buffer('running_var', torch.zeros(num_features))
     if self.feature_augment: # initialize {gamma, beta} with {0.3, 0.5}
-      self.gamma = torch.nn.Parameter(torch.ones(1, num_features, 1, 1)*0.3)
-      self.beta  = torch.nn.Parameter(torch.ones(1, num_features, 1, 1)*0.5)
+      self.gamma = torch.nn.Parameter(torch.ones(1, num_features, 1, 1)*0.003)
+      self.beta  = torch.nn.Parameter(torch.ones(1, num_features, 1, 1)*0.005)
     self.reset_parameters()
 
   def reset_running_stats(self):
@@ -276,8 +276,10 @@ class FeatureWiseTransformation2d_fw(nn.BatchNorm2d):
 
     # apply feature-wise transformation
     if self.feature_augment and self.training:
-      gamma = (1 + torch.randn(1, self.num_features, 1, 1, dtype=self.gamma.dtype, device=self.gamma.device)*softplus(self.gamma)).expand_as(out)
-      beta = (torch.randn(1, self.num_features, 1, 1, dtype=self.beta.dtype, device=self.beta.device)*softplus(self.beta)).expand_as(out)
+      #gamma = (1 + torch.randn(1, self.num_features, 1, 1, dtype=self.gamma.dtype, device=self.gamma.device)*softplus(self.gamma)).expand_as(out)
+      #beta = (torch.randn(1, self.num_features, 1, 1, dtype=self.beta.dtype, device=self.beta.device)*softplus(self.beta)).expand_as(out)
+      gamma = (1 + torch.randn(1, self.num_features, 1, 1, dtype=self.gamma.dtype, device=self.gamma.device)*(self.gamma)).expand_as(out)
+      beta = (torch.randn(1, self.num_features, 1, 1, dtype=self.beta.dtype, device=self.beta.device)*(self.beta)).expand_as(out)
       out = gamma*out + beta
     return out
 
@@ -292,8 +294,8 @@ class FeatureTransformation2d_ft(nn.BatchNorm2d):
       self.register_buffer('running_mean', torch.zeros(num_features))
       self.register_buffer('running_var', torch.zeros(num_features))
     if self.feature_augment: # initialize {gamma, beta} with {0.3, 0.5}
-      self.gamma = torch.nn.Parameter(torch.ones(1, num_features, 1, 1)*0.3)
-      self.beta  = torch.nn.Parameter(torch.ones(1, num_features, 1, 1)*0.5)
+      self.gamma = torch.nn.Parameter(torch.ones(1, num_features, 1, 1)*0.003)
+      self.beta  = torch.nn.Parameter(torch.ones(1, num_features, 1, 1)*0.005)
     self.reset_parameters()
 
   def reset_running_stats(self):
@@ -315,8 +317,10 @@ class FeatureTransformation2d_ft(nn.BatchNorm2d):
 
     # apply feature transformation
     if self.feature_augment and self.training:
-      gamma = (1 + torch.randn(1, self.num_features, 1, 1, dtype=self.gamma.dtype, device=self.gamma.device)*softplus(self.gamma)).expand_as(out)
-      beta = (torch.randn(1, self.num_features, 1, 1, dtype=self.beta.dtype, device=self.beta.device)*softplus(self.beta)).expand_as(out)
+      #gamma = (1 + torch.randn(1, self.num_features, 1, 1, dtype=self.gamma.dtype, device=self.gamma.device)*softplus(self.gamma)).expand_as(out)
+      #beta = (torch.randn(1, self.num_features, 1, 1, dtype=self.beta.dtype, device=self.beta.device)*softplus(self.beta)).expand_as(out)
+      gamma = (1 + torch.randn(1, self.num_features, 1, 1, dtype=self.gamma.dtype, device=self.gamma.device)*(self.gamma)).expand_as(out)
+      beta = (torch.randn(1, self.num_features, 1, 1, dtype=self.beta.dtype, device=self.beta.device)*(self.beta)).expand_as(out)
       out = gamma*out + beta
     return out
 
@@ -331,8 +335,8 @@ class FeatureTransformation1d_ft(nn.BatchNorm1d):
       self.register_buffer('running_mean', torch.zeros(num_features))
       self.register_buffer('running_var', torch.zeros(num_features))
     if self.feature_augment: # initialize {gamma, beta} with {0.3, 0.5}
-      self.gamma = torch.nn.Parameter(torch.ones(1, num_features, 1)*0.3)
-      self.beta  = torch.nn.Parameter(torch.ones(1, num_features, 1)*0.5)
+      self.gamma = torch.nn.Parameter(torch.ones(1, num_features, 1)*0.003)
+      self.beta  = torch.nn.Parameter(torch.ones(1, num_features, 1)*0.005)
     self.reset_parameters()
 
   def reset_running_stats(self):
@@ -354,8 +358,10 @@ class FeatureTransformation1d_ft(nn.BatchNorm1d):
 
     # apply feature-wise transformation
     if self.feature_augment and self.training:
-      gamma = (1 + torch.randn(1, self.num_features, 1,  dtype=self.gamma.dtype, device=self.gamma.device)*softplus(self.gamma)).expand_as(out)
-      beta = (torch.randn(1, self.num_features, 1,  dtype=self.beta.dtype, device=self.beta.device)*softplus(self.beta)).expand_as(out)
+      #gamma = (1 + torch.randn(1, self.num_features, 1,  dtype=self.gamma.dtype, device=self.gamma.device)*softplus(self.gamma)).expand_as(out)
+      #beta = (torch.randn(1, self.num_features, 1,  dtype=self.beta.dtype, device=self.beta.device)*softplus(self.beta)).expand_as(out)
+      gamma = (1 + torch.randn(1, self.num_features, 1,  dtype=self.gamma.dtype, device=self.gamma.device)*(self.gamma)).expand_as(out)
+      beta = (torch.randn(1, self.num_features, 1,  dtype=self.beta.dtype, device=self.beta.device)*(self.beta)).expand_as(out)
       out = gamma*out + beta
     return out
 
@@ -758,17 +764,26 @@ class ContextPurificationEncoder(nn.Module):
         self.embedding = encoder.embedding.Embedding(word_vec_mat, max_length,
                                                      word_embedding_dim, pos_embedding_dim)
 
-        seq_len, feature_dim, head_num = max_length, word_embedding_dim + 2 * pos_embedding_dim, num_heads
-        weights = np.random.standard_normal((feature_dim, feature_dim * 4))
-        bias = np.random.standard_normal((feature_dim * 4,))
+#        seq_len, feature_dim, head_num = max_length, word_embedding_dim + 2 * pos_embedding_dim, num_heads
+#        weights = np.random.standard_normal((feature_dim, feature_dim * 4))
+#        bias = np.random.standard_normal((feature_dim * 4,))
 
-        self.attention = Attention.get_torch_layer_with_weights(feature_dim, head_num, weights, bias)
+
+        seq_len, feature_dim, head_num = max_length, word_embedding_dim + 2 * pos_embedding_dim, num_heads
+        weights = np.random.standard_normal((self.hidden_size*2, self.hidden_size*8))
+        bias = np.random.standard_normal((self.hidden_size*8,))
+ 
+ 
+        self.attention = Attention.get_torch_layer_with_weights(self.hidden_size*2, head_num, weights, bias)
+#        self.attention = Attention.get_torch_layer_with_weights(feature_dim, head_num, weights, bias)
         self.maxpool = nn.MaxPool1d(2, stride=2)
-        self.lstm = torch.nn.LSTM(feature_dim, feature_dim, bidirectional=True)
+#        self.lstm = torch.nn.LSTM(feature_dim, feature_dim, bidirectional=True)
+        self.gru = torch.nn.GRU(feature_dim, self.hidden_size, bidirectional=True)
+        self.att_linear = nn.Linear(self.hidden_size*2, self.hidden_size)        
 
         self.embedding_dim = word_embedding_dim + pos_embedding_dim * 2
-        self.conv = nn.Conv1d(self.embedding_dim, self.hidden_size, 3, padding=1)
-        # self.pool = nn.MaxPool1d(max_length)
+#        self.conv = nn.Conv1d(self.embedding_dim, self.hidden_size, 3, padding=1)
+#        self.pool = nn.MaxPool1d(max_length)
 
 
         if self.maml:
@@ -814,125 +829,318 @@ class ContextPurificationEncoder(nn.Module):
         x = self.MHSFATT(x) # [50,128,60]
 
         # cnn
-        x = self.cnn(x) # [50,230,128]
-        x = x.transpose(1,2)
+       # x = self.cnn(x) # [50,230,128]
+       # x = x.transpose(1,2)
         x = self.trunk1(x) # [50,230,230]
         x = self.trunk2(x)  # x[batch,230,1] [50,230]
-        # x = x.squeeze(2) # x[batch,230]
+#        x = x.squeeze(2) # x[batch,230]
 
         return x
 
     def MHSFATT(self, x):
         x = x.transpose(0, 1)
-        x, hidden = self.lstm(x)
+        x, hidden = self.gru(x)
         x = x.transpose(0, 1).double()
-        x = self.maxpool(x)
+        #x = self.maxpool(x)
         x = self.attention(x, x, x).float()
+        #x = x/100
+        x = self.att_linear(x)
         return x
 
-    def cnn(self, inputs):
-        x = self.conv(inputs.transpose(1, 2)) #[50,230,128]
-        x = F.relu(x)
-        # x = self.pool(x) #[50,230,1]
-        # return x.squeeze(2) # n x hidden_size
-        return x # n x hidden_size x 1
+#    def cnn(self, inputs):
+#        x = self.conv(inputs.transpose(1, 2)) #[50,230,128]
+#        x = F.relu(x)
+#       # x = self.pool(x) #[50,230,1]
+#       # return x.squeeze(2) # n x hidden_size
+#        return x # n x hidden_size x 1
 
-class ContextPurification2DEncoder(nn.Module):
-    maml = False
-    def __init__(self, block, word_vec_mat,  list_of_num_layers, list_of_out_dims,max_length,
-                 word_embedding_dim=50,
-                 pos_embedding_dim=5, hidden_size=230, num_heads = 4,
-                 flatten=True, leakyrelu=False):
-        # nn.Module.__init__(self)
-        super(ContextPurification2DEncoder, self).__init__()
-        self.grads = []
-        self.fmaps = []
-        self.final_feat_dim = 230
-        self.hidden_size = hidden_size
-        self.max_length = max_length
-        self.embedding = encoder.embedding.Embedding(word_vec_mat, max_length,
-                                                     word_embedding_dim, pos_embedding_dim)
+##---------------for lstm------------------
+#class ContextPurification2DEncoder(nn.Module):
+#    maml = False
+#    def __init__(self, block, word_vec_mat,  list_of_num_layers, list_of_out_dims,max_length,
+#                 word_embedding_dim=50,
+#                 pos_embedding_dim=5, hidden_size=230, num_heads = 4,
+#                 flatten=True, leakyrelu=False):
+#        # nn.Module.__init__(self)
+#        super(ContextPurification2DEncoder, self).__init__()
+#        self.grads = []
+#        self.fmaps = []
+#        self.final_feat_dim = 230
+#        self.hidden_size = hidden_size
+#        self.max_length = max_length
+#        self.embedding = encoder.embedding.Embedding(word_vec_mat, max_length,
+#                                                     word_embedding_dim, pos_embedding_dim)
+#
+#        seq_len, feature_dim, head_num = max_length, word_embedding_dim + 2 * pos_embedding_dim, num_heads
+#        weights = np.random.standard_normal((feature_dim, feature_dim * 4))
+#        bias = np.random.standard_normal((feature_dim * 4,))
+#
+##        self.attention = Attention.get_torch_layer_with_weights(feature_dim, head_num, weights, bias)
+# #       self.maxpool = nn.MaxPool1d(2, stride=2)
+#  #      self.lstm = torch.nn.LSTM(feature_dim, feature_dim, bidirectional=True)
+#
+#        self.embedding_dim = word_embedding_dim + pos_embedding_dim * 2
+#        self.conv = nn.Conv2d(1, self.hidden_size, kernel_size=(3, self.embedding_dim), padding=(1, 0),bias=False)
+#        self.pool = nn.MaxPool1d(max_length)
+#
+#
+#        if self.maml:
+#          conv1 = Conv2d_ft(1, self.hidden_size, kernel_size=(3,self.embedding_dim), stride=1, padding=(1,0),bias=False)
+#          bn1 = BatchNorm2d_ft(self.hidden_size)
+#        else:
+#          conv1 = nn.Conv2d(1, self.hidden_size, kernel_size=(3, self.embedding_dim), padding=(1, 0),bias=False)
+#          bn1 = nn.BatchNorm2d(self.hidden_size)
+#
+#        relu = nn.ReLU(inplace=True) if not leakyrelu else nn.LeakyReLU(0.2, inplace=True)
+#        self.final_pool = nn.AvgPool1d(2)
+#
+#        init_layer(conv1)
+#        init_layer(bn1)
+#
+#        trunk1 = [conv1, bn1, relu]
+#        trunk2 = []
+#
+#        indim = 230
+#
+#        for i in range(3):
+#          for j in range(list_of_num_layers[i]):
+#            half_res = (i >= 1) and (j == 0)
+#            B = block(indim, list_of_out_dims[i], half_res, leaky=leakyrelu)
+#            trunk2.append(B)
+#            indim = list_of_out_dims[i]
+#
+#        if flatten:
+#          avgpool = nn.AvgPool2d((self.max_length,1))
+#          trunk2.append(avgpool)
+#          trunk2.append(Flatten())
+#          # trunk2.append(nn.AvgPool1d())
+#
+#        self.trunk1 = nn.Sequential(*trunk1)
+#        self.trunk2 = nn.Sequential(*trunk2)
+#
+#
+#    def forward(self,inputs):
+#        # embedding inputs [50,512]
+#        x = self.embedding(inputs)  # x [50,128,60] [batch，128维，50+5+5（word 50维，每个pos5维）]
+#
+#        # lstm & multi-head self-attention
+#        #x = self.MHSFATT(x) # [50,128,60]
+#
+#        # cnn
+#        x = self.cnn(x) # [50,230,128]
+#       # x = x.transpose(1,2)
+#       # x = x.unsqueeze(1)# [50,1,128,60]
+#       # x = self.trunk1(x) # [50,230,128,1]
+#       # x = self.trunk2(x)  #[50,460]
+#       # x = x.unsqueeze(1) #[50,1,460]
+#       # x = self.final_pool(x)#[50,230]
+#
+#        return x
+#
+# #   def MHSFATT(self, x):
+# #       x = x.transpose(0, 1)
+# #       x, hidden = self.lstm(x)
+# #       x = x.transpose(0, 1).double()
+# #       x = self.maxpool(x)
+# #       x = self.attention(x, x, x).float()
+# #       return x
+#
+#    def cnn(self, inputs):
+#        x = self.conv(inputs.transpose(1, 2)) #[50,230,128]
+#        x = F.relu(x)
+#        x = self.pool(x) #[50,230,1]
+#        return x.squeeze(2) # n x hidden_size
+#     #   return x # n x hidden_size x 1
 
-        seq_len, feature_dim, head_num = max_length, word_embedding_dim + 2 * pos_embedding_dim, num_heads
-        weights = np.random.standard_normal((feature_dim, feature_dim * 4))
-        bias = np.random.standard_normal((feature_dim * 4,))
+#-----------only conv2d--------------------
+class TwoDCNNEncoder(nn.Module): # only conv2d
+  def __init__(self, word_vec_mat, max_length,
+               word_embedding_dim=50,
+               pos_embedding_dim=5, hidden_size=230,):
+    super(TwoDCNNEncoder, self).__init__()
+    self.grads = []
+    self.fmaps = []
+    self.final_feat_dim = 230
+    self.hidden_size = hidden_size
+    self.max_length = max_length
+    self.embedding = encoder.embedding.Embedding(word_vec_mat, max_length,
+                                                 word_embedding_dim, pos_embedding_dim)
 
-        self.attention = Attention.get_torch_layer_with_weights(feature_dim, head_num, weights, bias)
-        self.maxpool = nn.MaxPool1d(2, stride=2)
-        self.lstm = torch.nn.LSTM(feature_dim, feature_dim, bidirectional=True)
+    self.embedding_dim = word_embedding_dim + pos_embedding_dim * 2
+    self.conv = nn.Conv2d(1, self.hidden_size, kernel_size=(3, self.embedding_dim), padding=(1, 0),bias=False)
+    self.pool = nn.MaxPool1d(max_length)
 
-        self.embedding_dim = word_embedding_dim + pos_embedding_dim * 2
-        # self.conv = nn.Conv2d(1, self.hidden_size, kernel_size=(3, self.embedding_dim), padding=(1, 0),bias=False)
-        # self.pool = nn.MaxPool1d(max_length)
+  def forward(self, inputs):
+    # embedding inputs [50,512]
+    x = self.embedding(inputs)  # x [50,128,60] [batch，128维，50+5+5（word 50维，每个pos5维）]
+
+    # cnn
+    x = self.cnn(x) # [50,230,128]
+    return x
+
+  def cnn(self, inputs):
+    x = inputs.unsqueeze(1) # [50,1,128,60]
+    x = self.conv(x)  # [50,230,128,1]
+    x = F.relu(x)
+    x = x.squeeze(-1)
+    x = self.pool(x) #[50,230,1]
+    return x.squeeze(2) # n x hidden_size
+
+#--------------att cnn--------------------------------
+class ATTCNNEncoder(nn.Module): # for gru
+  def __init__(self, word_vec_mat, max_length,
+               word_embedding_dim=50,
+               pos_embedding_dim=5, hidden_size=230, num_heads=2):
+    super(ATTCNNEncoder, self).__init__()
+    self.grads = []
+    self.fmaps = []
+    self.final_feat_dim = 230
+    self.hidden_size = hidden_size
+    self.max_length = max_length
+    self.embedding = encoder.embedding.Embedding(word_vec_mat, max_length,
+                                                 word_embedding_dim, pos_embedding_dim)
+
+    seq_len, feature_dim, head_num = max_length, word_embedding_dim + 2 * pos_embedding_dim, num_heads
+    weights = np.random.standard_normal((self.hidden_size*2, self.hidden_size * 8))
+    bias = np.random.standard_normal((self.hidden_size * 8,))
+
+    self.attention = Attention.get_torch_layer_with_weights(self.hidden_size*2, head_num, weights, bias)
+    self.gru = torch.nn.GRU(feature_dim, self.hidden_size, bidirectional=True)
+    self.att_linear=nn.Linear(self.hidden_size*2,self.hidden_size)
+
+    self.conv = nn.Conv2d(1, self.hidden_size, kernel_size=(3, self.hidden_size), padding=(1, 0),bias=False)
+    self.pool = nn.MaxPool1d(max_length)
 
 
-        if self.maml:
-          conv1 = Conv2d_ft(1, self.hidden_size, kernel_size=(3,self.embedding_dim), stride=1, padding=(1,0),bias=False)
-          bn1 = BatchNorm2d_ft(self.hidden_size)
-        else:
-          conv1 = nn.Conv2d(1, self.hidden_size, kernel_size=(3, self.embedding_dim), padding=(1, 0),bias=False)
-          bn1 = nn.BatchNorm2d(self.hidden_size)
+  def forward(self, inputs):
+    # embedding inputs [50,512]
+    x = self.embedding(inputs)  # x [50,128,60]
 
-        relu = nn.ReLU(inplace=True) if not leakyrelu else nn.LeakyReLU(0.2, inplace=True)
-        self.final_pool = nn.AvgPool1d(2)
+    # gru & multi-head self-attention
+    x = self.MHSFATT(x)  # [50,128,230]
 
-        init_layer(conv1)
-        init_layer(bn1)
+    # cnn
+    x = x.unsqueeze(1)  # [50,1,128,230]
+    x = self.cnn(x) # [50,230]
 
-        trunk1 = [conv1, bn1, relu]
-        trunk2 = []
+    return x
 
-        indim = 230
+  def MHSFATT(self, x):
+    x = x.transpose(0, 1) # [128,50,60]
+    x, hidden = self.gru(x) #[128,50,460]
+    x = x.transpose(0, 1).double()#[50,128,460]
+    x = self.attention(x, x, x).float()#[50,128,460]
+    x = self.att_linear(x)#[50,128,230]
+    return x
 
-        for i in range(3):
-          for j in range(list_of_num_layers[i]):
-            half_res = (i >= 1) and (j == 0)
-            B = block(indim, list_of_out_dims[i], half_res, leaky=leakyrelu)
-            trunk2.append(B)
-            indim = list_of_out_dims[i]
+  def cnn(self, inputs):
+    x = self.conv(inputs)  # [50,230,128，1]
+    x = F.relu(x)
+    x = x.squeeze(-1) # [50,230,128]
+    x = self.pool(x) #[50,230,1]
+    return x.squeeze(2) # n x hidden_size
+    # return x  # n x hidden_size x 1
 
-        if flatten:
-          avgpool = nn.AvgPool2d((self.max_length,1))
-          trunk2.append(avgpool)
-          trunk2.append(Flatten())
-          # trunk2.append(nn.AvgPool1d())
+#-------------for gru---------------------------------
+class ContextPurification2DEncoder(nn.Module): # for gru
+  maml = False
 
-        self.trunk1 = nn.Sequential(*trunk1)
-        self.trunk2 = nn.Sequential(*trunk2)
+  def __init__(self, block, word_vec_mat, list_of_num_layers, list_of_out_dims, max_length,
+               word_embedding_dim=50,
+               pos_embedding_dim=5, hidden_size=230, num_heads=2,
+               flatten=True, leakyrelu=False):
+    # nn.Module.__init__(self)
+    super(ContextPurification2DEncoder, self).__init__()
+    self.grads = []
+    self.fmaps = []
+    self.final_feat_dim = 230
+    self.hidden_size = hidden_size
+    self.max_length = max_length
+    self.embedding = encoder.embedding.Embedding(word_vec_mat, max_length,
+                                                 word_embedding_dim, pos_embedding_dim)
+
+    seq_len, feature_dim, head_num = max_length, word_embedding_dim + 2 * pos_embedding_dim, num_heads
+    weights = np.random.standard_normal((self.hidden_size*2, self.hidden_size * 8))
+    bias = np.random.standard_normal((self.hidden_size * 8,))
+
+    self.attention = Attention.get_torch_layer_with_weights(self.hidden_size*2, head_num, weights, bias)
+    # self.maxpool = nn.MaxPool1d(2, stride=2)
+    # self.lstm = torch.nn.LSTM(feature_dim, feature_dim, bidirectional=True)
+    self.gru = torch.nn.GRU(feature_dim, self.hidden_size, bidirectional=True)
+    self.att_linear=nn.Linear(self.hidden_size*2,self.hidden_size)
 
 
-    def forward(self,inputs):
-        # embedding inputs [50,512]
-        x = self.embedding(inputs)  # x [50,128,60] [batch，128维，50+5+5（word 50维，每个pos5维）]
+    # self.embedding_dim = word_embedding_dim + pos_embedding_dim * 2
+    # self.conv = nn.Conv2d(1, self.hidden_size, kernel_size=(3, self.embedding_dim), padding=(1, 0),bias=False)
+    # self.pool = nn.MaxPool1d(max_length)
 
-        # lstm & multi-head self-attention
-        x = self.MHSFATT(x) # [50,128,60]
+    if self.maml:
+      conv1 = Conv2d_ft(1, self.hidden_size, kernel_size=(3, self.hidden_size), stride=1, padding=(1, 0), bias=False)
+      bn1 = BatchNorm2d_ft(self.hidden_size)
+    else:
+      conv1 = nn.Conv2d(1, self.hidden_size, kernel_size=(3, self.hidden_size), padding=(1, 0), bias=False)
+      bn1 = nn.BatchNorm2d(self.hidden_size)
 
-        # cnn
-        # x = self.cnn(x) # [50,230,128]
-        # x = x.transpose(1,2)
-        x = x.unsqueeze(1)# [50,1,128,60]
-        x = self.trunk1(x) # [50,230,128,1]
-        x = self.trunk2(x)  #[50,460]
-        x = x.unsqueeze(1) #[50,1,460]
-        x = self.final_pool(x)#[50,230]
+    relu = nn.ReLU(inplace=True) if not leakyrelu else nn.LeakyReLU(0.2, inplace=True)
+    # self.final_pool = nn.AvgPool1d(2)
+    self.final_linear = nn.Linear(self.hidden_size*2,self.hidden_size)
 
-        return x
+    init_layer(conv1)
+    init_layer(bn1)
 
-    def MHSFATT(self, x):
-        x = x.transpose(0, 1)
-        x, hidden = self.lstm(x)
-        x = x.transpose(0, 1).double()
-        x = self.maxpool(x)
-        x = self.attention(x, x, x).float()
-        return x
+    trunk1 = [conv1, bn1, relu]
+    trunk2 = []
 
-    def cnn(self, inputs):
-        x = self.conv(inputs.transpose(1, 2)) #[50,230,128]
-        x = F.relu(x)
-        # x = self.pool(x) #[50,230,1]
-        # return x.squeeze(2) # n x hidden_size
-        return x # n x hidden_size x 1
+    indim = 230
+
+    for i in range(3):
+      for j in range(list_of_num_layers[i]):
+        half_res = (i >= 1) and (j == 0)
+        B = block(indim, list_of_out_dims[i], half_res, leaky=leakyrelu)
+        trunk2.append(B)
+        indim = list_of_out_dims[i]
+
+    if flatten:
+      avgpool = nn.AvgPool2d((self.max_length, 1))
+      trunk2.append(avgpool)
+      trunk2.append(Flatten())
+      # trunk2.append(nn.AvgPool1d())
+
+    self.trunk1 = nn.Sequential(*trunk1)
+    self.trunk2 = nn.Sequential(*trunk2)
+
+  def forward(self, inputs):
+    # embedding inputs [50,512]
+    x = self.embedding(inputs)  # x [50,128,60] [batch，128维，50+5+5（word 50维，每个pos5维）]
+
+    # lstm & multi-head self-attention
+    x = self.MHSFATT(x)  # [50,128,230]
+ 
+    # cnn
+    # x = self.cnn(x) # [50,230,128]
+    # x = x.transpose(1,2)
+    x = x.unsqueeze(1)  # [50,1,128,230]
+    x = self.trunk1(x)  # [50，230，128，1]
+    x = self.trunk2(x)  #  [50,460]
+    x = self.final_linear(x)# [50,230]
+
+    return x
+
+  def MHSFATT(self, x):
+    x = x.transpose(0, 1) # [128,50,60]
+    x, hidden = self.gru(x) #[128,50,460]
+    x = x.transpose(0, 1).double()#[50,128,460]
+    x = self.attention(x, x, x).float()#[50,128,460]
+    x = self.att_linear(x)#[50,128,230]
+    return x
+
+  # def cnn(self, inputs):
+  #   x = self.conv(inputs.transpose(1, 2))  # [50,230,128]
+  #   x = F.relu(x)
+  #   # x = self.pool(x) #[50,230,1]
+  #   # return x.squeeze(2) # n x hidden_size
+  #   return x  # n x hidden_size x 1
+
 
 class CNNSentenceEncoder(nn.Module):
 
@@ -958,12 +1166,10 @@ class CNNSentenceEncoder(nn.Module):
 
     def forward(self, inputs):  # inputs[batch_size,512]，一个样本有 word,pos1,pos2,mask,每一个是128维，4个拼成一行 所以是512维
         x = self.embedding(inputs)  # x [4,128,60] [batch，128维，50+5+5（word 50维，每个pos5维）]
-        x = x.transpose(0,1)  # embedding output [50,128,60], transpose out[128,50,60]
-        x,hidden = self.lstm(x)  # x [128,50.120] hidden tuple 每一个元素是[2,50,60]
-        x = x.transpose(0,1).double()  # [50,128,120]
-        x = self.maxpool(x)  # [50,128,60]
-        x = self.attention(x,x,x).float() # [50,128,60]
-        x = self.encoder(x)  # x[batch,230] [50,230]
+        #x = x.transpose(0,1)  # embedding output [50,128,60], transpose out[128,50,60]
+        #x,hidden = self.lstm(x)  # x [128,50.120] hidden tuple 每一个元素是[2,50,60]
+        #x = x.transpose(0,1).double()  # [50,128,120]
+        #x = self.maxpool(x)  # [50,128,60]
 
         return x
 
@@ -994,7 +1200,7 @@ def ContextCNN(flatten = True, leakyrelu=False): # 如何使用flatten
         raise Exception("Cannot find glove files. Run glove/download_glove.sh to download glove files.")
 
     return ContextPurificationEncoder(OneDBlock, glove_mat, [1,1,1,1],[230,230,230,230], max_length = 128, word_embedding_dim=50,
-                 pos_embedding_dim=5, hidden_size=230,  num_heads = 4,
+                 pos_embedding_dim=5, hidden_size=230,  num_heads = 2,
                                       flatten = True, leakyrelu=False)
 
 
@@ -1007,7 +1213,7 @@ def Context2DCNN(flatten=True, leakyrelu=False):  # 如何使用flatten
 
   return ContextPurification2DEncoder(TwoDBlock, glove_mat, [1, 1, 1, 1], [460, 460, 460, 230], max_length=128,
                                     word_embedding_dim=50,
-                                    pos_embedding_dim=5, hidden_size=230, num_heads=4,
+                                    pos_embedding_dim=5, hidden_size=230, num_heads=2,
                                     flatten=True, leakyrelu=False)
 
 
@@ -1020,6 +1226,23 @@ def OneCNN(flatten=True, leakyrelu=False):  # 如何使用flatten
 
   return CNNSentenceEncoder(glove_mat, max_length=128, word_embedding_dim=50,
                             pos_embedding_dim=5, hidden_size=230)
+def TwoDCNN():
+  try:
+    glove_mat = np.load('./glove/glove_mat.npy')
+  except:
+    raise Exception("Cannot find glove files. Run glove/download_glove.sh to download glove files.")
+
+  return TwoDCNNEncoder(glove_mat, max_length=128, word_embedding_dim=50,
+                            pos_embedding_dim=5, hidden_size=230)
+
+def ATTCNN():
+  try:
+    glove_mat = np.load('./glove/glove_mat.npy')
+  except:
+    raise Exception("Cannot find glove files. Run glove/download_glove.sh to download glove files.")
+
+  return ATTCNNEncoder(glove_mat, max_length=128, word_embedding_dim=50,
+                            pos_embedding_dim=5, hidden_size=230,num_heads=2)
 
 
 model_dict = dict(Conv4 = Conv4,
@@ -1027,5 +1250,8 @@ model_dict = dict(Conv4 = Conv4,
                   ResNet10 = ResNet10,
                   ResNet18 = ResNet18,
                   ResNet34 = ResNet34,
-                  cnn = Context2DCNN)
+                  Context2DCnn = Context2DCNN,
+                  OnlyCnn = TwoDCNN,
+                  AttCnn = ATTCNN,
+                  Context1DCnn = ContextCNN)
 #if __name__=='__main__':

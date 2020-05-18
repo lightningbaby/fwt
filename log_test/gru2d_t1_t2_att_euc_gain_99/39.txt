@@ -1,0 +1,15 @@
+Testing! 5 shots on fwt_val_pubmed dataset with 39 epochs of gru2d_t1_t2_att_euc_gain_99(protonet)
+
+Stage 1: saving features
+  build dataset
+  build feature encoder
+  extract and save features...
+    0/16
+    10/16
+
+Stage 2: evaluate
+  build metric-based model
+  load saved feature file
+  evaluate
+  get statics
+  1000 test iterations: Acc = 50.30% +- 0.84%

@@ -156,7 +156,7 @@ class FeaTransNet(nn.Module):
       if (total_it + 1) % 10 == 0 and self.tf_writer is not None:
         self.tf_writer.add_scalar('LFTNet/model_loss', model_loss.item(), total_it + 1)
         self.tf_writer.add_scalar('LFTNet/ft_loss', ft_loss.item(), total_it + 1)
-        return total_it  # for test
+        #return total_it  # for test
       total_it += 1
 
     return total_it

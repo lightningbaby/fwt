@@ -17,12 +17,20 @@ import os
 import glob
 import torch
 import argparse
-
+def str2bool(v):
+  if v.lower() in ('yes','true', 't', 'y', '1'):
+    return True
+  elif v.lower() in ('no', 'false', 'f', 'n', '0'):
+    return False
+  else:
+    raise argparse.ArgumentTypeError('Unsupported value encountered.')
 def parse_args(script):
   parser = argparse.ArgumentParser(description= 'few-shot script %s' %(script))
   parser.add_argument('--dataset', default='multi', help='wiki/nyt/semeval/pubmed, specify multi for training with multiple domains')
-  parser.add_argument('--testset', default='fwt_sub_test_pubmed', help='nyt/semeval/pubmed, valid only when dataset=multi')
-  parser.add_argument('--model', default='cnn', help='model: Conv{4|6} / ResNet{10|18|34}')
+  parser.add_argument('--testset', default='fwt_val_pubmed', help='nyt/semeval/pubmed, valid only when dataset=multi')
+ # parser.add_argument('--model', default='cnn', help='model: Conv{4|6} / ResNet{10|18|34}')
+  parser.add_argument('--model', default='Context2DCnn', help='model:Context2DCnn/OnlyCnn/AttCnn/Context1DCnn')
+
   parser.add_argument('--method', default='baseline',   help='baseline/baseline++/protonet/matchingnet/relationnet{_softmax}/gnnnet')
   parser.add_argument('--train_n_way' , default=5, type=int,  help='class num to classify for training')
   parser.add_argument('--test_n_way'  , default=5, type=int,  help='class num to classify for testing (validation) ')
@@ -32,28 +40,30 @@ def parse_args(script):
   parser.add_argument('--data_dir'    , default='./re_data', type=str, help='')
   parser.add_argument('--max_length', default=128, type=int, help='max length')
   parser.add_argument('--train', default=' fwt_train_wiki', help='train file')
-  parser.add_argument('--val', default='fwt_sub_val_pubmed', help='val file')
-  parser.add_argument('--test', default='fwt_sub_test_pubmed', help='test file')
+  parser.add_argument('--val', default='fwt_val_pubmed', help='val file')
+  parser.add_argument('--test', default='fwt_val_pubmed', help='test file')
   parser.add_argument('--batch_size', default=4, type=int, help='batch size')
   parser.add_argument('--n_query', default=5, type=int,help='Num of query per class')
-  parser.add_argument('--proto_attention', default=True, type=bool,
+  parser.add_argument('--proto_attention', default=True, type=str2bool,
                       help='whether to switch on proto attention True or False')
   parser.add_argument('--proto_distance', default='Euclidean', type=str,
                       help='methon to measure distance, Euclidean or MLP')
-  parser.add_argument('--pubmed',default=False, type=bool, help='training with pubmed')
+  parser.add_argument('--proto_common', default=False, type=str2bool,
+                      help='whether to use common in proto')
+  parser.add_argument('--pubmed',default=False, type=str2bool, help='training with pubmed')
   if script == 'train':
     parser.add_argument('--num_classes' , default=64, type=int, help='total number of classes in softmax, only used in baseline')
-    parser.add_argument('--save_freq'   , default=25, type=int, help='Save frequency')
+    parser.add_argument('--save_freq'   , default=20, type=int, help='Save frequency')
     parser.add_argument('--start_epoch' , default=0, type=int,help ='Starting epoch')
     # parser.add_argument('--stop_epoch'  , default=400, type=int, help ='Stopping epoch')
-    parser.add_argument('--stop_epoch'  , default=10, type=int, help ='Stopping epoch')
+    parser.add_argument('--stop_epoch'  , default=40, type=int, help ='Stopping epoch')
     parser.add_argument('--resume'      , default='', type=str, help='continue from previous trained model with largest epoch')
     parser.add_argument('--resume_epoch', default=-1, type=int, help='')
     parser.add_argument('--warmup'      , default='gg3b0', type=str, help='continue from baseline, neglected if resume is true')
   elif script == 'test':
     parser.add_argument('--split'       , default='fwt_sub_test_pubmed', help='base/val/novel')
     # parser.add_argument('--save_epoch', default=399, type=int,help ='save feature from the model trained in x epoch, use the best model if x is -1')
-    parser.add_argument('--save_epoch', default=2, type=int,help ='save feature from the model trained in x epoch, use the best model if x is -1')
+    parser.add_argument('--save_epoch', default=20, type=int,help ='save feature from the model trained in x epoch, use the best model if x is -1')
 
   else:
     raise ValueError('Unknown script')

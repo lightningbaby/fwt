@@ -14,7 +14,7 @@
 import torch
 import os
 import h5py
-
+import torch.nn as nn
 from methods import re_backbone
 from methods.re_backbone import model_dict
 from data.re_datamgr import SimpleREDataManager
@@ -89,10 +89,12 @@ if __name__ == '__main__':
   print('  build feature encoder')
   # feature encoder
   checkpoint_dir = '%s/checkpoints/%s'%(params.save_dir, params.name)
+ # print(checkpoint_dir)
   if params.save_epoch != -1:
     modelfile   = get_assigned_file(checkpoint_dir,params.save_epoch)
   else:
     modelfile   = get_best_file(checkpoint_dir)
+ # print(modelfile)
   if params.method in ['relationnet', 'relationnet_softmax']:
     if params.model == 'Conv4':
       model = re_backbone.Conv4NP()
@@ -107,6 +109,7 @@ if __name__ == '__main__':
   tmp = torch.load(modelfile)
   try:
     state = tmp['state']
+ #   print(state.keys())
   except KeyError:
     state = tmp['model_state']
   except:
@@ -118,7 +121,13 @@ if __name__ == '__main__':
       state[newkey] = state.pop(key)
     else:
       state.pop(key)
-
+ # print('-----------------------')
+ # print(state.keys())
+ # for name in model.state_dict():
+ #   print(name)
+ # print('--------------------------------------')
+ # for name in state: 
+ #   print(name)
   model.load_state_dict(state)
   model.eval()
 
@@ -144,7 +153,7 @@ if __name__ == '__main__':
   # model
   print('  build metric-based model')
   if params.method == 'protonet':
-    model = ProtoNet( model_dict[params.model], **few_shot_params)
+    model = ProtoNet( model_dict[params.model], **few_shot_params,proto_attention=params.proto_attention,distance=params.proto_distance, common=params.proto_common)
   elif params.method == 'matchingnet':
     model = MatchingNet( model_dict[params.model], **few_shot_params )
   elif params.method == 'gnnnet':
@@ -172,16 +181,20 @@ if __name__ == '__main__':
     modelfile = get_best_file(checkpoint_dir)
   if modelfile is not None:
     tmp = torch.load(modelfile)
+    #print(tmp['state'].keys())
     try:
+      #model=nn.DataParallel(model)
       model.load_state_dict(tmp['state'])
-    except RuntimeError:
-      print('warning! RuntimeError when load_state_dict()!')
-      model.load_state_dict(tmp['state'], strict=False)
-    except KeyError:
-      for k in tmp['model_state']:   ##### revise latter
-        if 'running' in k:
-          tmp['model_state'][k] = tmp['model_state'][k].squeeze()
-      model.load_state_dict(tmp['model_state'], strict=False)
+     # model.cuda() 
+      
+#    except RuntimeError:
+#      print('warning! RuntimeError when load_state_dict()!')
+#      model.load_state_dict(tmp['state'], strict=False)
+#    except KeyError:
+#      for k in tmp['model_state']:   ##### revise latter
+#        if 'running' in k:
+#          tmp['model_state'][k] = tmp['model_state'][k].squeeze()
+#      model.load_state_dict(tmp['model_state'], strict=False)
     except:
       raise
 
@@ -192,7 +205,7 @@ if __name__ == '__main__':
   # start evaluate
   print('  evaluate')
   for i in range(iter_num):
-    acc = feature_evaluation(cl_data_file, model, n_query=15, **few_shot_params)
+    acc = feature_evaluation(cl_data_file, model, n_query=5, **few_shot_params)
     acc_all.append(acc)
 
   # statics

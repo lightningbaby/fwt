@@ -7,15 +7,16 @@ from torch.nn import functional as F
 from methods.meta_template import MetaTemplate
 from methods import Attention
 class ProtoNet(MetaTemplate):
-  def __init__(self, model_func,  n_way, n_support, tf_path=None, hidden_size=230, num_heads=2, distance='Euclidean',proto_attention = False):
+  def __init__(self, model_func,  n_way, n_support, tf_path=None, hidden_size=230, num_heads=2, distance='Euclidean',proto_attention = False,common = True):
     super(ProtoNet, self).__init__(model_func,  n_way, n_support, tf_path=tf_path)
     self.loss_fn = nn.CrossEntropyLoss()
     self.method = 'ProtoNet'
     self.hidden_size = hidden_size
     weights = np.random.standard_normal((hidden_size, hidden_size * 4))
     bias = np.random.standard_normal((hidden_size * 4,))
+    #proto_attention = True # test
     if proto_attention == True:
-      self.attention = Attention.get_torch_layer_with_weights(hidden_size, num_heads,weights,bias)
+      self.protonet_attention = Attention.get_torch_layer_with_weights(hidden_size, num_heads,weights,bias)
     #Aget_torch_layer_with_weights(feature_dim, head_num, weights, bias)
     #self.common_gain = nn.Parameter(torch.ones(hidden_size, dtype=torch.float))
     if distance == 'MLP':
@@ -23,18 +24,20 @@ class ProtoNet(MetaTemplate):
       self.linear2 = nn.Linear(hidden_size, 1, True)
     self.atten_or_not = proto_attention
     self.distance = distance
-    self.weight = nn.Parameter(torch.ones(1,dtype=float))
-    a = 10
+    self.common = common
+   # self.weight = nn.Parameter(torch.ones(1,dtype=torch.float))
+  #  a = 10
   def reset_modules(self):
     return
 
   def set_forward(self,x,is_feature=False):
     z_support, z_query  = self.parse_feature(x,is_feature) # [5,5,512], [5,16,512]
 
-    #z_query = torch.ones(18400).view(5,16,230)
+    #look at this !!! z_query = torch.ones(18400).view(5,16,230)
     if self.atten_or_not == True:
-      a = self.attention(z_query,z_support,z_support)
-      z_query = (a + z_query)/2  # 效果待测试
+      a = self.protonet_attention(z_query,z_support,z_support)
+     # z_query = a/100   # 效果待测试
+      z_query = (a/100 + z_query)/2  # 效果待测试
     z_support   = z_support.contiguous()
     z_support   = z_support.view(self.n_way, self.n_support, -1 ) #  [5,5,230]
     z_proto     = z_support.float().mean(1) #the shape of z is [n_data, n_dim] [N,K,D] [5,230]
@@ -56,12 +59,16 @@ class ProtoNet(MetaTemplate):
 
     if self.distance == 'Euclidean':
       dists = euclidean_dist(z_query, z_proto) #[80,5]
-      dists = dists * class_weight
+      #dists = dists * class_weight
+      if self.common == True:
+        dists = dists * class_weight#sum = torch.cat([sum, torch.cat([tmp, tmp2], 0).unsqueeze(0)], 0)
       scores = -dists
       return scores
     else:
       scores = self.get_distance_by_MLP(z_proto,z_query)
-      return scores * class_weight_MLP
+      if self.common == True:
+        return scores * class_weight_MLP#dists = dists * class_weight#sum = torch.cat([sum, torch.cat([tmp, tmp2], 0).unsqueeze(0)], 0)
+      return scores 
   def get_distance_by_MLP(self,proto,query):   # concat proto_vector with query_vector
     sum = torch.cat([query[0], proto[0]], 0).unsqueeze(0)
     for tmp in query:
