@@ -32,12 +32,15 @@ class ProtoNet(MetaTemplate):
 
   def set_forward(self,x,is_feature=False):
     z_support, z_query  = self.parse_feature(x,is_feature) # [5,5,512], [5,16,512]
-
     #look at this !!! z_query = torch.ones(18400).view(5,16,230)
     if self.atten_or_not == True:
       a = self.protonet_attention(z_query,z_support,z_support)
      # z_query = a/100   # 效果待测试
-      z_query = (a/100 + z_query)/2  # 效果待测试
+      z_query = (a/100 + z_query)/2  # 效果待测�
+    #z_query = torch.ones(18400).view(5,16,230)
+    #if self.atten_or_not == True:
+    #  a = self.attention(z_query,z_support,z_support)
+    #  z_query = (a + z_query)/2  # 效果待测试
     z_support   = z_support.contiguous()
     z_support   = z_support.view(self.n_way, self.n_support, -1 ) #  [5,5,230]
     z_proto     = z_support.float().mean(1) #the shape of z is [n_data, n_dim] [N,K,D] [5,230]

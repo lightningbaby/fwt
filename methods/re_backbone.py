@@ -956,7 +956,7 @@ class ContextPurificationEncoder(nn.Module):
 class TwoDCNNEncoder(nn.Module): # only conv2d
   def __init__(self, word_vec_mat, max_length,
                word_embedding_dim=50,
-               pos_embedding_dim=5, hidden_size=230,):
+               pos_embedding_dim=5, hidden_size=230,flatten=True, leakyrelu=False):
     super(TwoDCNNEncoder, self).__init__()
     self.grads = []
     self.fmaps = []
@@ -990,7 +990,7 @@ class TwoDCNNEncoder(nn.Module): # only conv2d
 class ATTCNNEncoder(nn.Module): # for gru
   def __init__(self, word_vec_mat, max_length,
                word_embedding_dim=50,
-               pos_embedding_dim=5, hidden_size=230, num_heads=2):
+               pos_embedding_dim=5, hidden_size=230, num_heads=2,flatten=True, leakyrelu=False):
     super(ATTCNNEncoder, self).__init__()
     self.grads = []
     self.fmaps = []
@@ -1226,23 +1226,23 @@ def OneCNN(flatten=True, leakyrelu=False):  # 如何使用flatten
 
   return CNNSentenceEncoder(glove_mat, max_length=128, word_embedding_dim=50,
                             pos_embedding_dim=5, hidden_size=230)
-def TwoDCNN():
+def TwoDCNN(flatten=True, leakyrelu=False):
   try:
     glove_mat = np.load('./glove/glove_mat.npy')
   except:
     raise Exception("Cannot find glove files. Run glove/download_glove.sh to download glove files.")
 
   return TwoDCNNEncoder(glove_mat, max_length=128, word_embedding_dim=50,
-                            pos_embedding_dim=5, hidden_size=230)
+                            pos_embedding_dim=5, hidden_size=230,flatten=True, leakyrelu=False)
 
-def ATTCNN():
+def ATTCNN(flatten=True, leakyrelu=False):
   try:
     glove_mat = np.load('./glove/glove_mat.npy')
   except:
     raise Exception("Cannot find glove files. Run glove/download_glove.sh to download glove files.")
 
   return ATTCNNEncoder(glove_mat, max_length=128, word_embedding_dim=50,
-                            pos_embedding_dim=5, hidden_size=230,num_heads=2)
+                            pos_embedding_dim=5, hidden_size=230,num_heads=2,flatten=True, leakyrelu=False)
 
 
 model_dict = dict(Conv4 = Conv4,
