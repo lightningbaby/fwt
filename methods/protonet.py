@@ -22,6 +22,12 @@ class ProtoNet(MetaTemplate):
     if distance == 'MLP':
       self.linear1 = nn.Linear(2*hidden_size,hidden_size,True)
       self.linear2 = nn.Linear(hidden_size, 1, True)
+    if distance == 'pair':
+      self.pair_linear1 = nn.Linear(2 * hidden_size, hidden_size, True)
+      self.pair_linear2 = nn.Linear(hidden_size, 1, True)
+      self.pair_gru = torch.nn.GRU(self.hidden_size*2, self.hidden_size, bidirectional=True)
+
+
     self.atten_or_not = proto_attention
     self.distance = distance
     self.common = common
@@ -30,17 +36,18 @@ class ProtoNet(MetaTemplate):
   def reset_modules(self):
     return
 
-  def set_forward(self,x,is_feature=False):
+  def set_forward(self,x,is_feature=False):# x [8,10,230]
     z_support, z_query  = self.parse_feature(x,is_feature) # [5,5,512], [5,16,512]
     #look at this !!! z_query = torch.ones(18400).view(5,16,230)
     if self.atten_or_not == True:
       a = self.protonet_attention(z_query,z_support,z_support)
-     # z_query = a/100   # 效果待测试
-      z_query = (a/100 + z_query)/2  # 效果待测�
+     # z_query = a/100   #
+      z_query = (a/100 + z_query)/2
     #z_query = torch.ones(18400).view(5,16,230)
     #if self.atten_or_not == True:
     #  a = self.attention(z_query,z_support,z_support)
-    #  z_query = (a + z_query)/2  # 效果待测试
+    #  z_query = (a + z_query)/2  #
+    # z_support = a
     z_support   = z_support.contiguous()
     z_support   = z_support.view(self.n_way, self.n_support, -1 ) #  [5,5,230]
     z_proto     = z_support.float().mean(1) #the shape of z is [n_data, n_dim] [N,K,D] [5,230]
@@ -67,24 +74,41 @@ class ProtoNet(MetaTemplate):
         dists = dists * class_weight#sum = torch.cat([sum, torch.cat([tmp, tmp2], 0).unsqueeze(0)], 0)
       scores = -dists
       return scores
-    else:
+    elif self.distance == 'MLP':
       scores = self.get_distance_by_MLP(z_proto,z_query)
       if self.common == True:
         return scores * class_weight_MLP#dists = dists * class_weight#sum = torch.cat([sum, torch.cat([tmp, tmp2], 0).unsqueeze(0)], 0)
-      return scores 
+    else :
+      scores = self.get_distance_by_relationnet(z_proto,z_query)
+      if self.common == True:
+        return scores * class_weight_MLP
+
+    return scores
   def get_distance_by_MLP(self,proto,query):   # concat proto_vector with query_vector
-    sum = torch.cat([query[0], proto[0]], 0).unsqueeze(0)
+    sum = torch.cat([query[0], proto[0]], 0).unsqueeze(0) #[1,460] proto[N,230] query [NQ,230]
     for tmp in query:
       for tmp2 in proto:
         sum = torch.cat([sum, torch.cat([tmp, tmp2], 0).unsqueeze(0)], 0)
-    sum = sum[1:]
+    sum = sum[1:]# [N*N,D]
     vects = sum.split(self.n_way, 0)
     input = vects[0].unsqueeze(0)
     for vect in vects[1:]:
-      input = torch.cat([input, vect.unsqueeze(0)], 0)
-    x = self.linear1(input)
+      input = torch.cat([input, vect.unsqueeze(0)], 0) #[1,1,460]
+    x = self.linear1(input) #[NQ,N,D] [1,1,230]
     x = self.linear2(x).squeeze(2)
     return x
+
+  def get_distance_by_relationnet(self,proto,query):
+    N, D, Q = proto.size(0), proto.size(-1), query.size(0)
+    proto = proto.unsqueeze(0).expand(Q,N,D)
+    query = query.unsqueeze(1).expand(Q,N,D)
+    # pair = torch.cat([proto,query],-1).view(N*Q,-1)
+    pair = torch.cat([proto,query],-1)#[NQ,N,2D]
+    x, h = self.pair_gru(pair)
+    x = self.pair_linear1(x)
+    x = self.pair_linear2(x).squeeze(2)
+    return x
+
 
   def get_distance(self,x,is_feature = False):
     z_support, z_query  = self.parse_feature(x,is_feature)
