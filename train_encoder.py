@@ -26,7 +26,6 @@ from methods.matchingnet import MatchingNet
 from methods.relationnet import RelationNet
 from methods.gnnnet import GnnNet
 from re_args import parse_args, get_resume_file, load_warmup_state
-#from toolkit import data_preprocess, sentence_encoder, encoder
 
 def train(base_loader, val_loader, model, start_epoch, stop_epoch, params):
 
@@ -41,8 +40,8 @@ def train(base_loader, val_loader, model, start_epoch, stop_epoch, params):
 
   # start
   for epoch in range(start_epoch,stop_epoch):
-    model.train() # resnet 完成了训练 #训练分类模型，先resnet提取特征、FCE后NLLloss分类
-    total_it = model.train_loop(epoch, base_loader,  optimizer, total_it) #model are called by reference, no need to return
+    model.train()
+    total_it = model.train_loop(epoch, base_loader,  optimizer, total_it)
     model.eval()
 
     acc = model.test_loop( val_loader)
@@ -68,7 +67,7 @@ if __name__=='__main__':
   np.random.seed(10)
 
   # parser argument
-  params = parse_args('train')  #model_dict=conv4, conv6, resnet10, resnet18,resnet34
+  params = parse_args('train')
   print('--- baseline training: {} ---\n'.format(params.name))
   print(params)
   batch_size= params.batch_size
@@ -86,28 +85,23 @@ if __name__=='__main__':
 
   if params.dataset == 'multi':
     print('  train with multiple seen domains (unseen domain: {})'.format(params.testset))
-    # datasets = ['miniImagenet', 'cars', 'places', 'cub', 'plantae']
     datasets = ['fwt_train_wiki', 'fwt_val_semeval', 'fwt_val_nyt']
-    #datasets2 = ['fwt_train_wiki', 'fwt_val_semeval', 'fwt_val_nyt','fwt_sub_val_pubmed']
-    #if params.pubmed:
-    #  datasets=datasets2
     datasets.remove(params.testset)
-    ### 需要修改文件名
+
     base_file = [os.path.join(params.data_dir, (params.train + '.json')) for dataset in datasets] # 多个域的训练集训练
-    val_file  = os.path.join(params.data_dir, (params.val + '.json')) #train_wiki 验证
+    val_file  = os.path.join(params.data_dir, (params.val + '.json'))
   else:
     print('  train with single seen domain {}'.format(params.dataset))
     base_file  = os.path.join(params.data_dir,  (params.dataset + '.json'))
     val_file   = os.path.join(params.data_dir, (params.val + '.json'))
 
-  # model
   print('\n--- build model ---')
 
-  if params.method in ['baseline', 'baseline++'] : # paras.model resnet10 这是feature encoder
+  if params.method in ['baseline', 'baseline++'] :
     print('  pre-training the feature encoder {} using method {}'.format(params.model, params.method))
-    base_datamgr = SimpleREDataManager(batch_size)
+    base_datamgr = SimpleREDataManager(batch_size,shuffle=True)
     base_loader = base_datamgr.get_data_loader(base_file, params.max_length)
-    val_datamgr = SimpleREDataManager(batch_size)
+    val_datamgr = SimpleREDataManager(batch_size,shuffle=True)
     val_loader = val_datamgr.get_data_loader(val_file, params.max_length)
 
     if params.method == 'baseline':
@@ -122,22 +116,17 @@ if __name__=='__main__':
     #if test_n_way is smaller than train_n_way, reduce n_query to keep batch size small
     # n_query = max(1, int(16* params.test_n_way/params.train_n_way)) # 16
 
-    train_few_shot_params    = dict(n_way = params.train_n_way, n_support = params.n_shot)  # （5，5）
-    base_datamgr            = SetREDataManager(max_length=params.max_length, n_query=params.n_query,**train_few_shot_params)
-    base_loader             = base_datamgr.get_data_loader(base_file,params.max_length)
+    train_few_shot_params    = dict(n_way = params.train_n_way, n_support = params.n_shot, n_query=params.n_query)  # （5，5）
+    base_datamgr            = SetREDataManager(max_length=params.max_length,**train_few_shot_params)
+    base_loader             = base_datamgr.get_data_loader(base_file, params.max_length)
 
-    test_few_shot_params     = dict(n_way = params.test_n_way, n_support = params.n_shot)  # （5，5）
-    val_datamgr             = SetREDataManager(max_length=params.max_length, n_query=params.n_query, **test_few_shot_params)
-    val_loader              = val_datamgr.get_data_loader(val_file,params.max_length)
- #   print('  proto_attention {} with feature encoder'.format(params.proto_attention))
+    test_few_shot_params     = dict(n_way = params.test_n_way, n_support = params.n_shot, n_query=params.n_query)  # （5，5）
+    val_datamgr             = SetREDataManager(max_length=params.max_length,  **test_few_shot_params)
+    val_loader              = val_datamgr.get_data_loader(val_file, params.max_length)
 
     if params.method == 'protonet':
-      #model           = ProtoNet( model_dict[params.model], tf_path=params.tf_dir, **train_few_shot_params)
-      #model           = ProtoNet( model_dict[params.model], tf_path=params.tf_dir, **train_few_shot_params,proto_attention=params.proto_attention, distance=params.proto_distance)
+      # model           = ProtoNet( model_dict[params.model], tf_path=params.tf_dir, **train_few_shot_params)
       model           = ProtoNet( model_dict[params.model], tf_path=params.tf_dir, **train_few_shot_params,proto_attention=params.proto_attention, distance=params.proto_distance, common = params.proto_common)
-     # print(model)
-      model           = ProtoNet( model_dict[params.model], tf_path=params.tf_dir, **train_few_shot_params,proto_attention=params.proto_attention, distance=params.proto_distance)
-      #model = ProtoNet(model_dict[params.model], tf_path=params.tf_dir, **train_few_shot_params)
     elif params.method == 'gnnnet':
       model           = GnnNet( model_dict[params.model], tf_path=params.tf_dir, **train_few_shot_params)
     elif params.method == 'matchingnet':

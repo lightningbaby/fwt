@@ -41,8 +41,8 @@ class BaselineTrain(nn.Module):
   def forward(self,x):
     if torch.cuda.is_available():
       x = x.cuda() # x[16,3,224,224]
-    out  = self.feature.forward(x) # [16,512] resnet  RE out[batch,hidden] [4,230]
-    scores  = self.classifier.forward(out) # [16,200] distLinear RE scores[batch,num_classes] [4,8]
+    out  = self.feature.forward(x) # [16,512] [batch,hidden]
+    scores  = self.classifier.forward(out) # [batch,num_classes]
     return scores
 
   def forward_loss(self, x, y):
@@ -56,14 +56,14 @@ class BaselineTrain(nn.Module):
     print_freq = len(train_loader) // 10
     avg_loss=0
 
-    for i, (x,y) in enumerate(train_loader):# x[16,3,224,224] [batch,channel,h,w], y[16]
+    for i, (x,y,o) in enumerate(train_loader):# x [batch,channel,h,w], y[16]
       # if i<3 :
       optimizer.zero_grad() # x[batch,512],y[4]
-      loss = self.forward_loss(x, y) #resnet
+      loss = self.forward_loss(x, y)
       loss.backward()
       optimizer.step()
 
-      avg_loss = avg_loss+loss.item()#data[0]
+      avg_loss = avg_loss+loss.item()
 
       if (i + 1) % print_freq==0:
         print('Epoch {:d} | Batch {:d}/{:d} | Loss {:f}'.format(epoch, i + 1, len(train_loader), avg_loss/float(i+1)  ))

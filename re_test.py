@@ -35,7 +35,7 @@ def save_features(model, data_loader, featurefile):
   all_labels = f.create_dataset('all_labels',(max_count,), dtype='i')
   all_feats=None
   count=0
-  for i, (x,y) in enumerate(data_loader): # x[64,512]
+  for i, (x,y,o) in enumerate(data_loader): # x[64,512]
     if (i % 10) == 0:
       print('    {:d}/{:d}'.format(i, len(data_loader)))
     if torch.cuda.is_available():
@@ -83,11 +83,10 @@ if __name__ == '__main__':
 
   split = params.split
   loadfile = os.path.join(params.data_dir, (params.dataset + '.json'))
-  datamgr         = SimpleREDataManager( batch_size = 64)
+  datamgr         = SimpleREDataManager(batch_size = 64, shuffle = params.shuffle)
   data_loader      = datamgr.get_data_loader(loadfile,params.max_length)
 
   print('  build feature encoder')
-  # feature encoder
   checkpoint_dir = '%s/checkpoints/%s'%(params.save_dir, params.name)
  # print(checkpoint_dir)
   if params.save_epoch != -1:
@@ -183,10 +182,8 @@ if __name__ == '__main__':
     tmp = torch.load(modelfile)
     #print(tmp['state'].keys())
     try:
-      #model=nn.DataParallel(model)
       model.load_state_dict(tmp['state'])
-     # model.cuda() 
-      
+
 #    except RuntimeError:
 #      print('warning! RuntimeError when load_state_dict()!')
 #      model.load_state_dict(tmp['state'], strict=False)

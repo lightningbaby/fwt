@@ -44,13 +44,14 @@ def parse_args(script):
   parser.add_argument('--test', default='fwt_val_pubmed', help='test file')
   parser.add_argument('--batch_size', default=4, type=int, help='batch size')
   parser.add_argument('--n_query', default=5, type=int,help='Num of query per class')
-  parser.add_argument('--proto_attention', default=True, type=str2bool,
-                      help='whether to switch on proto attention True or False')
+  parser.add_argument('--proto_attention',action='store_false',
+                      help='default True,if input this para ,then false')
   parser.add_argument('--proto_distance', default='Euclidean', type=str,
                       help='methon to measure distance, Euclidean or MLP')
-  parser.add_argument('--proto_common', default=False, type=str2bool,
-                      help='whether to use common in proto')
-  parser.add_argument('--pubmed',default=False, type=str2bool, help='training with pubmed')
+  parser.add_argument('--proto_common', action='store_false',
+                      help='default True,if input this para,then false')
+  parser.add_argument('--shuffle',action='store_false', help= 'default True,if input this para,then false')
+  # parser.add_argument('--pubmed',default=False, type=bool, help='training with pubmed')
   if script == 'train':
     parser.add_argument('--num_classes' , default=64, type=int, help='total number of classes in softmax, only used in baseline')
     parser.add_argument('--save_freq'   , default=20, type=int, help='Save frequency')

@@ -47,9 +47,10 @@ class DataManager:
     pass
 
 class SimpleREDataManager(DataManager):
-  def __init__(self, batch_size):
+  def __init__(self, batch_size,shuffle):
     super(SimpleREDataManager, self).__init__()
     self.batch_size = batch_size
+    self.shuffle = shuffle
     try:
         # self.glove_mat = np.load('./pretrain/glove/glove_mat.npy')
         self.glove_word2id = json.load(open('./glove/glove_word2id.json'))
@@ -59,7 +60,7 @@ class SimpleREDataManager(DataManager):
   def get_data_loader(self, data_file, max_length):
       dataset = FewRelDataset(data_file, self.glove_word2id, max_length)
       # data_loader_params = dict(batch_size = self.batch_size, shuffle = True, num_workers = 4, pin_memory = True, collate_fn=collate_fn)
-      data_loader_params = dict(batch_size = self.batch_size, shuffle = True, num_workers = 4, pin_memory = True)
+      data_loader_params = dict(batch_size = self.batch_size, shuffle = self.shuffle, num_workers = 4, pin_memory = True)
 
       data_loader = data.DataLoader(dataset=dataset,
                                     **data_loader_params)

@@ -53,7 +53,7 @@ class MetaTemplate(nn.Module):
   def train_loop(self, epoch, train_loader, optimizer, total_it):
     print_freq = len(train_loader) // 10
     avg_loss=0
-    for i, (x,_ ) in enumerate(train_loader):  # x[5,21,3,224,224] _[5,21] ,n_support 5
+    for i, (x,_ ,o) in enumerate(train_loader):  # x[5,21,3,224,224] _[5,21] ,n_support 5
       # if i<3:
       self.n_query = x.size(1) - self.n_support # 16
       if self.change_way:
@@ -101,10 +101,10 @@ class MetaTemplate(nn.Module):
     acc_final = []
 
     iter_num = len(test_loader)//10
-    print('iter num:%d/n',iter_num)
+    print('iter num:', iter_num)
 
     for it in range(iter_num):
-      for i, (x,_) in enumerate(test_loader):# [5，10，512] ，[5，10] 5个类，每个类10个样本
+      for i, (x,_,o) in enumerate(test_loader):# [5，10，512] ，[5，10] 5个类，每个类10个样本
         acc_all = []
         self.n_query = x.size(1) - self.n_support
         if self.change_way:

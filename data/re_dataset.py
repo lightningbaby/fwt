@@ -83,6 +83,20 @@ class FewRelDataset(data.Dataset):
                                                        item['t'][2][0])
         return word, pos1, pos2, mask
 
+    def __getsent__(self,word,sent):
+        for w in word:
+            sent += w + ' '
+        return sent
+
+    def __getoridata__(self, item):
+        word, pos1, pos2 = item['tokens'],item['h'][0],item['t'][0]
+
+        sent = self.__getsent__(word,' ')
+        p1 = '<'+pos1+ '>'
+        p2 = '<'+pos2+ '>'
+
+        return sent + p1 + p2
+
     def __additem__(self, d, word, pos1, pos2, mask):
         d['word'].append(word)
         d['pos1'].append(pos1)
@@ -99,9 +113,9 @@ class FewRelDataset(data.Dataset):
         mask = torch.tensor(mask).long()
         # one_data=torch.stack([word,pos1,pos2,mask],0) # [4,128]
         one_data=torch.cat([word,pos1,pos2,mask],0) #[512]
+        ori_data = self.__getoridata__(data)
 
-
-        return one_data,label
+        return one_data,label,ori_data
 
     def __len__(self):
         return len(self.data)
@@ -259,6 +273,20 @@ class SubDataset:
                                                    item['t'][2][0])
     return word, pos1, pos2, mask
 
+  def __getsent__(self, word, sent):
+      for w in word:
+          sent += w + ' '
+      return sent
+
+  def __getoridata__(self, item):
+      word, pos1, pos2 = item['tokens'], item['h'][0], item['t'][0]
+
+      sent = self.__getsent__(word, ' ')
+      p1 = '<' + pos1 + '>'
+      p2 = '<' + pos2 + '>'
+
+      return sent + p1 + p2
+
   def __getitem__(self,i):
     label=self.cl
     data=self.sub_meta[i]
@@ -268,7 +296,8 @@ class SubDataset:
     pos2 = torch.tensor(pos2).long()
     mask = torch.tensor(mask).long()
     one_data = torch.cat([word, pos1, pos2, mask], 0)  # [512]
-    return one_data, label
+    ori_data = self.__getoridata__(data)
+    return one_data, label,ori_data
 
   def __len__(self):
     return len(self.sub_meta)
